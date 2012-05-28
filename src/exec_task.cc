@@ -25,7 +25,7 @@ void handle_query_result(const exec_task_t * task) {
 	int row_count = PQntuples(task->pg_result);
 	int field_count = PQnfields(task->pg_result);
 
-	uint i, j;
+	int i, j;
 
 	v8::Local<v8::String> * fields =
 		(v8::Local<v8::String> *)

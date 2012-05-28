@@ -1,5 +1,5 @@
 
-CC = clang 
+CC = gcc 
 
 CFLAGS = -g3 -fno-inline -O3 -Wall -fPIC
 LINK_FLAGS = -shared
