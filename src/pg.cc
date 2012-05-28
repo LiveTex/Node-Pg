@@ -111,6 +111,22 @@ v8::Handle<v8::Value> pg_is_busy(const v8::Arguments &args) {
 }
 
 
+v8::Handle<v8::Value> pg_is_valid(const v8::Arguments &args) {
+    v8::HandleScope scope;
+
+    if (args.Length() < 1) {
+		return throw_type_error("First argument must be connection!");
+	}
+
+    PGconn * connection = (PGconn *) v8::External::Unwrap(args[0]);
+
+    if (PQstatus(connection) != CONNECTION_BAD) {
+    	return scope.Close(v8::True());
+    }
+
+    return scope.Close(v8::False());
+};
+
 extern "C" void init (v8::Handle<v8::Object> target) {
     v8::HandleScope scope;
 
@@ -122,6 +138,9 @@ extern "C" void init (v8::Handle<v8::Object> target) {
 
     target->Set(v8::String::New("isBusy"),
     			v8::FunctionTemplate::New(pg_is_busy)->GetFunction());
+
+    target->Set(v8::String::New("isValid"),
+    			v8::FunctionTemplate::New(pg_is_valid)->GetFunction());
 
     target->Set(v8::String::New("disconnect"),
     			v8::FunctionTemplate::New(pg_disconnect)->GetFunction());
