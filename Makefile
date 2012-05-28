@@ -1,5 +1,5 @@
 
-CC = gcc 
+CC = clang 
 
 CFLAGS = -g3 -fno-inline -O3 -Wall -fPIC
 LINK_FLAGS = -shared
@@ -7,7 +7,9 @@ LINK_FLAGS = -shared
 LIBS = pq v8
 
 BUILD_DIR = bin
-INCLUDE_DIRS = /usr/local/include/node /usr/include/node /usr/include/postgresql 
+INCLUDE_DIRS = /usr/local/include/node \
+			   /usr/include/node \
+			   /usr/include/postgresql 
 
 VPATH = src
 
@@ -25,5 +27,5 @@ pg.node : pg.o \
 	$(CC) $(CFLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -o $(BUILD_DIR)/$@  -c $< 
 
 clean :
-	rm -rf $(BUILD_DIR)/*.*
+	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/*.node
 	
