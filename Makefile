@@ -22,13 +22,25 @@ INCLUDE_DIRS = /usr/local/include/node \
 VPATH = src
 
 
+#
+#	Global
+#
+
+
 all : cpp js
+
+
+clean :
+	rm -rf $(BUILD_DIR)/*
+
 
 #
 #	C++
 #
 
+
 cpp : pg.node
+
 
 pg.node : pg.o \
 		  errors.o \
@@ -38,6 +50,7 @@ pg.node : pg.o \
 	   	  $(addprefix $(BUILD_DIR)/, $^) \
 	   	  $(addprefix -l, $(LIBS)) 
 
+
 %.o : %.cc
 	$(CC) $(CFLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -o $(BUILD_DIR)/$@  -c $<
 
@@ -46,10 +59,12 @@ pg.node : pg.o \
 #	JavaScript
 #
 
+
 js : index.js
 	cat lib/requires.js > /tmp/out && \
 	cat $(addprefix $(BUILD_DIR)/, $^) >> /tmp/out && \
 	mv /tmp/out $(addprefix $(BUILD_DIR)/, $^)
+
 
 index.js : lib/pg/pg.js \
 		   lib/pg/connection.js \
@@ -59,12 +74,4 @@ index.js : lib/pg/pg.js \
 		   $(addprefix --js_output_file $(BUILD_DIR)/, $@)
 
 
-
-#
-#	Misc
-#
-
-
-clean :
-	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/*.node
 	
