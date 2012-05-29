@@ -7,39 +7,39 @@
 
 #include <libpq-fe.h>
 
-#include "errors.h"
-#include "exec_task.h"
-#include "connect_task.h"
+
+#include "actions.h"
+#include "connection.h"
+#include "utils.h"
+#include "task.h"
 
 
 v8::Handle<v8::Value> pg_connect(const v8::Arguments &args) {
     v8::HandleScope scope;
 
     if (args.Length() < 1) {
-		return throw_type_error("First argument must be connection string!");
+		return throw_type_error
+			("First argument must be connection options string!");
 	}
 
     if (args.Length() < 2 && !args[1]->IsFunction()) {
-		return throw_type_error("Second argument must be callback function!");
+		return throw_type_error
+			("Second argument must be callback function!");
 	}
 
-    v8::Local<v8::String> arg0 = args[0]->ToString();
+    connection_t * connection =
+    		connection_alloc(v8::Local<v8::Function>::Cast(args[1]));
 
-    char * connection_string =
-    		(char *) malloc(sizeof(char) * arg0->Utf8Length());
-    arg0->WriteUtf8(connection_string);
+    task_t * task = task_alloc(action_connect);
+    task->data = arg_extract_string(args[0]->ToString());
 
-    PGconn * connection = PQconnectStart(connection_string);
+    connection_push_task(connection, task);
 
-    uv_work_t * task_request = (uv_work_t *) malloc(sizeof(uv_work_t));
+    if (connection->status == CONNECTION_FREE) {
+    	connection_process(connection);
+    }
 
-    task_request->data = connect_task_alloc
-			(connection, v8::Local<v8::Function>::Cast(args[1]));
-
-    uv_queue_work(uv_default_loop(), task_request,
-    			  connect_task_work, connect_task_handler);
-
-    return scope.Close(v8::Undefined());
+    return scope.Close(v8::External::Wrap(connection));
 }
 
 
@@ -50,47 +50,16 @@ v8::Handle<v8::Value> pg_disconnect(const v8::Arguments &args) {
 		return throw_type_error("First argument must be connection!");
 	}
 
-    PQfinish((PGconn *) v8::External::Unwrap(args[0]));
+    connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
+    task_t * task = task_alloc(action_disconnect);
 
-    return scope.Close(v8::Undefined());
-}
+    connection_push_task(connection, task);
 
-
-v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
-    v8::HandleScope scope;
-
-    if (args.Length() < 1) {
-		return throw_type_error("First argument must be connection!");
-	}
-
-    if (args.Length() < 2) {
-		return throw_type_error("Second argument must be query!");
-	}
-
-    if (args.Length() < 3 && !args[2]->IsFunction()) {
-		return throw_type_error("Third argument must be callback function!");
-	}
-
-    PGconn * connection = (PGconn *) v8::External::Unwrap(args[0]);
-
-    v8::Local<v8::String> arg1 = args[1]->ToString();
-
-    char * query_string = (char *) malloc(sizeof(char) * arg1->Utf8Length());
-    arg1->WriteUtf8(query_string);
-
-    if (PQsendQuery(connection, query_string) == 0) {
-    	return throw_error(PQerrorMessage(connection));
+    if (connection->status == CONNECTION_FREE) {
+    	connection_process(connection);
     }
 
-    uv_work_t * task_request = (uv_work_t *) malloc(sizeof(uv_work_t));
-
-    task_request->data =
-    		exec_task_alloc(connection, v8::Local<v8::Function>::Cast(args[2]));
-
-    uv_queue_work(uv_default_loop(), task_request,
-    			  exec_task_work, exec_task_handler);
-
-    return scope.Close(v8::Undefined());
+    return scope.Close(v8::Integer::New(task->id));
 }
 
 
@@ -101,9 +70,9 @@ v8::Handle<v8::Value> pg_is_busy(const v8::Arguments &args) {
 		return throw_type_error("First argument must be connection!");
 	}
 
-    PGconn * connection = (PGconn *) v8::External::Unwrap(args[0]);
+    connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
 
-    if (PQisBusy(connection) == 1) {
+    if (connection->status != CONNECTION_FREE) {
     	return scope.Close(v8::True());
     }
 
@@ -118,16 +87,44 @@ v8::Handle<v8::Value> pg_is_valid(const v8::Arguments &args) {
 		return throw_type_error("First argument must be connection!");
 	}
 
-    PGconn * connection = (PGconn *) v8::External::Unwrap(args[0]);
+    connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
 
-    if (PQstatus(connection) != CONNECTION_BAD) {
+    if (connection->status != CONNECTION_BROKEN) {
     	return scope.Close(v8::True());
     }
 
     return scope.Close(v8::False());
 };
 
-extern "C" void init (v8::Handle<v8::Object> target) {
+
+
+v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
+    v8::HandleScope scope;
+
+    if (args.Length() < 1) {
+		return throw_type_error("First argument must be connection!");
+	}
+
+    if (args.Length() < 2) {
+		return throw_type_error("Second argument must be query!");
+	}
+
+    connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
+
+	task_t * task = task_alloc(action_execute);
+	task->data = arg_extract_string(args[1]->ToString());
+
+	connection_push_task(connection, task);
+
+	if (connection->status == CONNECTION_FREE) {
+		connection_process(connection);
+	}
+
+    return scope.Close(v8::Integer::New(task->id));
+}
+
+
+void init (v8::Handle<v8::Object> target) {
     v8::HandleScope scope;
 
     target->Set(v8::String::New("connect"),
@@ -146,3 +143,5 @@ extern "C" void init (v8::Handle<v8::Object> target) {
     			v8::FunctionTemplate::New(pg_disconnect)->GetFunction());
 }
 
+
+NODE_MODULE(pg, init)

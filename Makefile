@@ -9,7 +9,7 @@ EXTERNS = node-externs.js pg-externs.js
 
 CC = clang 
 
-CFLAGS = -g3 -fno-inline -O3 -Wall -fPIC
+CFLAGS = -g3 -fno-inline -O3 -Wall -fPIC -DPIC
 LINK_FLAGS = -shared
 
 LIBS = pq v8
@@ -43,12 +43,13 @@ cpp : pg.node
 
 
 pg.node : pg.o \
-		  errors.o \
-		  exec_task.o \
-		  connect_task.o 
-	$(CC) $(LINK_FLAGS) -o $(BUILD_DIR)/$@ \
+		  utils.o \
+		  actions.o \
+		  task.o \
+		  connection.o 
+	$(CC) -o $(BUILD_DIR)/$@ \
 	   	  $(addprefix $(BUILD_DIR)/, $^) \
-	   	  $(addprefix -l, $(LIBS)) 
+	   	  $(addprefix -l, $(LIBS)) $(LINK_FLAGS)
 
 
 %.o : %.cc
