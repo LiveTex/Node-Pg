@@ -59,7 +59,7 @@ v8::Handle<v8::Value> pg_disconnect(const v8::Arguments &args) {
     	connection_process(connection);
     }
 
-    return scope.Close(v8::Integer::New(task->id));
+    return scope.Close(v8::Undefined());
 }
 
 

@@ -74,5 +74,4 @@ index.js : lib/pg/pg.js \
 		   $(addprefix --externs lib/, $(EXTERNS)) \
 		   $(addprefix --js_output_file $(BUILD_DIR)/, $@)
 
-
 	
