@@ -3,41 +3,56 @@ var __pg = require('./pg.node');
 var events 		= require('events');
 var querystring = require('querystring');
 var util 		= require('util');
-function $pg$Connection$$($opt_options$$5$$) {
-  events.EventEmitter.call(this);
-  this.$__optionsString$ = querystring.stringify($opt_options$$5$$, " ");
-  this.$__descriptor$ = 0;
-  this.$__handleConnection$ = this.$__handleConnection$.bind(this)
+var $JSCompiler_alias_NULL$$ = null, $pg$__pool$$ = $JSCompiler_alias_NULL$$;
+function $pg$Pool$$($connectionCount$$1$$, $connectionOptions$$1$$) {
+  this.$__connectionString$ = querystring.stringify($connectionOptions$$1$$, " ");
+  console.log(this.$__connectionString$);
+  this.$__queryQueue$ = [];
+  this.$__connections$ = Array($connectionCount$$1$$)
 }
-util.inherits($pg$Connection$$, events.EventEmitter);
-$pg$Connection$$.prototype.connect = function $$pg$Connection$$$$connect$($opt_options$$6$$) {
-  void 0 !== $opt_options$$6$$ && (this.$__optionsString$ = querystring.stringify($opt_options$$6$$, " "));
-  __pg.connect(this.$__optionsString$, this.$__handleConnection$)
+;function $pg$Query$$($command$$, $opt_callback$$4$$) {
+  this.$__command$ = $command$$;
+  this.$__callback$ = $opt_callback$$4$$ || $JSCompiler_alias_NULL$$
+}
+$pg$Query$$.prototype.apply = function $$pg$Query$$$$apply$($error$$3$$, $result$$) {
+  this.$__callback$ !== $JSCompiler_alias_NULL$$ && (this.$__callback$($error$$3$$, $result$$), this.$__callback$ = $JSCompiler_alias_NULL$$);
+  this.$__command$ = ""
 };
-$pg$Connection$$.prototype.exec = function $$pg$Connection$$$$exec$($query$$3$$, $callback$$34$$) {
-  __pg.exec(this.$__descriptor$, $query$$3$$, $callback$$34$$)
-};
-$pg$Connection$$.prototype.isBusy = function $$pg$Connection$$$$isBusy$() {
-  return __pg.isBusy(this.$__descriptor$)
-};
-$pg$Connection$$.prototype.isValid = function $$pg$Connection$$$$isValid$() {
-  return __pg.isValid(this.$__descriptor$)
-};
-$pg$Connection$$.prototype.disconnect = function $$pg$Connection$$$$disconnect$() {
-  __pg.disconnect(this.$__descriptor$)
-};
-$pg$Connection$$.prototype.$__handleConnection$ = function $$pg$Connection$$$$$__handleConnection$$($error$$3$$, $descriptor$$1$$) {
-  null !== $descriptor$$1$$ ? (this.$__descriptor$ = $descriptor$$1$$, this.emit("connected")) : this.emit("error", $error$$3$$)
-};
-exports.Connection = $pg$Connection$$;
-var $connection$$ = new $pg$Connection$$({user:"relive", dbname:"relive", hostaddr:"127.0.0.1", port:6432});
-$connection$$.addListener("connected", function() {
-  $connection$$.exec("SELECT NOW()", function($error$$4$$, $result$$) {
-    console.log($error$$4$$, $result$$)
+function $pg$Connection$$($queryQueue$$) {
+  this.$__descriptor$ = 0;
+  this.$__queryQueue$ = $queryQueue$$;
+  this.$__currentQuery$ = $JSCompiler_alias_NULL$$
+}
+$pg$Connection$$.prototype.connect = function $$pg$Connection$$$$connect$($options$$2$$) {
+  var $self$$1$$ = this;
+  this.$__descriptor$ = __pg.connect($options$$2$$, function($query$$5_taskId$$, $status$$, $error$$4$$, $result$$1$$) {
+    if(2 === $status$$) {
+      if($self$$1$$.$__descriptor$ = 0, $error$$4$$ !== $JSCompiler_alias_NULL$$) {
+        throw $error$$4$$;
+      }
+    }else {
+      0 === $query$$5_taskId$$ ? $JSCompiler_StaticMethods_process$$($self$$1$$) : ($query$$5_taskId$$ = $self$$1$$.$__currentQuery$, $self$$1$$.$__currentQuery$ = $JSCompiler_alias_NULL$$, $JSCompiler_StaticMethods_process$$($self$$1$$), $query$$5_taskId$$ !== $JSCompiler_alias_NULL$$ && $query$$5_taskId$$.apply($error$$4$$, $result$$1$$))
+    }
   })
-});
-$connection$$.addListener("error", function($error$$5$$) {
-  console.log($error$$5$$)
-});
-$connection$$.connect();
+};
+function $JSCompiler_StaticMethods_process$$($JSCompiler_StaticMethods_process$self$$) {
+  if(0 !== $JSCompiler_StaticMethods_process$self$$.$__descriptor$ && $JSCompiler_StaticMethods_process$self$$.$__currentQuery$ === $JSCompiler_alias_NULL$$) {
+    var $next$$ = $JSCompiler_StaticMethods_process$self$$.$__queryQueue$.shift();
+    void 0 !== $next$$ ? (__pg.exec($JSCompiler_StaticMethods_process$self$$.$__descriptor$, $next$$.$__command$), $JSCompiler_StaticMethods_process$self$$.$__currentQuery$ = $next$$) : $JSCompiler_StaticMethods_process$self$$.$__currentQuery$ = $JSCompiler_alias_NULL$$
+  }
+}
+;exports.init = function $exports$init$($connectionCount$$, $connectionOptions$$) {
+  for(var $JSCompiler_StaticMethods_init$self$$inline_1$$ = $pg$__pool$$ = new $pg$Pool$$($connectionCount$$, $connectionOptions$$), $i$$inline_2$$ = 0, $l$$inline_3$$ = $JSCompiler_StaticMethods_init$self$$inline_1$$.$__connections$.length, $connection$$inline_4$$ = $JSCompiler_alias_NULL$$;$i$$inline_2$$ < $l$$inline_3$$;) {
+    $connection$$inline_4$$ = new $pg$Connection$$($JSCompiler_StaticMethods_init$self$$inline_1$$.$__queryQueue$), $connection$$inline_4$$.connect($JSCompiler_StaticMethods_init$self$$inline_1$$.$__connectionString$), $JSCompiler_StaticMethods_init$self$$inline_1$$.$__connections$[$i$$inline_2$$] = $connection$$inline_4$$, $i$$inline_2$$++
+  }
+};
+exports.exec = function $exports$exec$($query$$3$$, $callback$$33$$) {
+  if($pg$__pool$$ !== $JSCompiler_alias_NULL$$) {
+    var $JSCompiler_StaticMethods_execQuery$self$$inline_7$$ = $pg$__pool$$;
+    $JSCompiler_StaticMethods_execQuery$self$$inline_7$$.$__queryQueue$.push(new $pg$Query$$($query$$3$$, $callback$$33$$));
+    for(var $i$$inline_8$$ = 0, $l$$inline_9$$ = $JSCompiler_StaticMethods_execQuery$self$$inline_7$$.$__connections$.length;$i$$inline_8$$ < $l$$inline_9$$;) {
+      $JSCompiler_StaticMethods_process$$($JSCompiler_StaticMethods_execQuery$self$$inline_7$$.$__connections$[$i$$inline_8$$]), $i$$inline_8$$++
+    }
+  }
+};
 

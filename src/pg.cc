@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <typeinfo>
 
 #include <v8.h>
 #include <node.h>
@@ -28,7 +30,7 @@ v8::Handle<v8::Value> pg_connect(const v8::Arguments &args) {
 	}
 
     connection_t * connection =
-    		connection_alloc(v8::Local<v8::Function>::Cast(args[1]));
+		connection_alloc(v8::Local<v8::Function>::Cast(args[1]));
 
     task_t * task = task_alloc(action_connect);
     task->data = arg_extract_string(args[0]->ToString());
@@ -51,13 +53,18 @@ v8::Handle<v8::Value> pg_disconnect(const v8::Arguments &args) {
 	}
 
     connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
-    task_t * task = task_alloc(action_disconnect);
 
-    connection_push_task(connection, task);
-
-    if (connection->status == CONNECTION_FREE) {
-    	connection_process(connection);
+    if (connection == NULL) {
+    	return throw_error("Invalid connection!");
     }
+
+	task_t * task = task_alloc(action_disconnect);
+
+	connection_push_task(connection, task);
+
+	if (connection->status == CONNECTION_FREE) {
+		connection_process(connection);
+	}
 
     return scope.Close(v8::Undefined());
 }
@@ -72,7 +79,7 @@ v8::Handle<v8::Value> pg_is_busy(const v8::Arguments &args) {
 
     connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
 
-    if (connection->status != CONNECTION_FREE) {
+    if (connection != NULL && connection->status != CONNECTION_FREE) {
     	return scope.Close(v8::True());
     }
 
@@ -89,7 +96,7 @@ v8::Handle<v8::Value> pg_is_valid(const v8::Arguments &args) {
 
     connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
 
-    if (connection->status != CONNECTION_BROKEN) {
+    if (connection != NULL && connection->status != CONNECTION_BROKEN) {
     	return scope.Close(v8::True());
     }
 
@@ -110,6 +117,10 @@ v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
 	}
 
     connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
+
+    if (connection == NULL) {
+    	return throw_error("Invalid connection!");
+    }
 
 	task_t * task = task_alloc(action_execute);
 	task->data = arg_extract_string(args[1]->ToString());

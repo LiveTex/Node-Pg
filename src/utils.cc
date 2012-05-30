@@ -41,12 +41,12 @@ v8::Local<v8::Value> create_error(v8::Local<v8::String> msg) {
 }
 
 char * copy_string(const char * source) {
-	size_t l = strlen(source);
+	size_t l = strlen(source) + 1;
 	return (char *) memcpy(malloc(sizeof(char) * l), source, l);
 }
 
 char * arg_extract_string(v8::Local<v8::String> arg) {
-	char * string = (char *) malloc(sizeof(char) * arg->Utf8Length());
+	char * string = (char *) malloc(sizeof(char) * arg->Length());
 
 	arg->WriteUtf8(string);
 

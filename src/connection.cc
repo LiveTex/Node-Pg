@@ -17,6 +17,8 @@
 void connection_work(uv_work_t * work) {
 	connection_t * connection = (connection_t *) work->data;
 
+	size_t i = 0;
+
 	task_t * task = connection_shift_task(connection);
 	while (task != NULL) {
 		task_result_t * result = NULL;
@@ -29,24 +31,32 @@ void connection_work(uv_work_t * work) {
 			result->task_id = task->id;
 
 			connection_push_result(connection, result);
+
+			i++;
+		}
+
+		if (i >= 16 && connection->status == CONNECTION_BUSY) {
+			connection->status = CONNECTION_LOADED;
 		}
 
 		task_free(task);
 
-		if (connection->status == CONNECTION_BROKEN) {
+		if (connection->status != CONNECTION_BUSY) {
 			break;
 		}
 
 		task = connection_shift_task(connection);
 	}
 
-	if (connection->status != CONNECTION_BROKEN) {
+	if (connection->status == CONNECTION_BUSY) {
 		connection->status = CONNECTION_FREE;
 	}
 }
 
 
 void connection_handler(uv_work_t * work) {
+	v8::HandleScope scope;
+
 	connection_t * connection = (connection_t *) work->data;
 
 	task_result_t * result = connection_shift_result(connection);
@@ -62,6 +72,10 @@ void connection_handler(uv_work_t * work) {
 
 	if (connection->status == CONNECTION_BROKEN) {
 		connection_free(connection);
+	}
+
+	if (connection->status == CONNECTION_LOADED) {
+		connection_process(connection);
 	}
 
 	free(work);
@@ -94,7 +108,7 @@ void connection_process(connection_t * connection) {
 
 	connection->status = CONNECTION_BUSY;
 
-    uv_queue_work(uv_default_loop(), work, connection_work, connection_handler);
+	uv_queue_work(uv_default_loop(), work, connection_work, connection_handler);
 }
 
 
@@ -176,6 +190,8 @@ void connection_free(connection_t * connection) {
 
 	connection->callback.Dispose();
 
+	free(connection->result_origin);
+	free(connection->task_origin);
 	free(connection);
 }
 

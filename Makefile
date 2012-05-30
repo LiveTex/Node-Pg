@@ -1,4 +1,5 @@
 
+# ADVANCED_OPTIMIZATIONS WHITESPACE_ONLY
 
 JSC = java -jar utils/compiler.jar \
 		   --warning_level VERBOSE \
@@ -9,8 +10,8 @@ EXTERNS = node-externs.js pg-externs.js
 
 CC = clang 
 
-CFLAGS = -g3 -fno-inline -O3 -Wall -fPIC -DPIC
-LINK_FLAGS = -shared
+CFLAGS = -g3 -fno-inline -O3 -Wall -fPIC -DPIC -pthread
+LINK_FLAGS = -shared -pthread
 
 LIBS = pq v8
 
@@ -68,6 +69,8 @@ js : index.js
 
 
 index.js : lib/pg/pg.js \
+		   lib/pg/pool.js \
+		   lib/pg/query.js \
 		   lib/pg/connection.js \
 		   lib/index.js
 	$(JSC) $(addprefix --js , $^) \
