@@ -18,49 +18,39 @@ typedef struct task_result_ task_result_t;
 typedef struct task_ task_t;
 
 
-typedef task_result_t * (* task_action_f) (struct connection_ * connection,
-										   void * data);
-
-
-typedef void (* task_result_action_f) (struct connection_ * connection,
+typedef void (* task_process_handler) (void * data,
+									   struct connection_ * connection,
 									   task_result_t * result);
 
 
-struct task_ {
-	size_t id;
+typedef void (* task_result_handler) (task_result_t * result,
+									  struct connection_ * connection,
+									  int argc, v8::Handle<v8::Value> * argv);
 
-	task_action_f action;
+
+struct task_ {
+	task_process_handler process;
+	task_result_handler handle_result;
 
 	task_t * next;
 	task_t * prev;
+
+	task_result_t * result;
 
 	void * data;
 };
 
 
 struct task_result_ {
-	size_t task_id;
-
-	task_result_action_f action;
-
-	task_result_t * next;
-	task_result_t * prev;
-
 	char * error;
 	void * data;
 };
 
 
-task_t * task_alloc(task_action_f action);
-task_t * task_alloc(task_action_f action, void * data);
-
-task_result_t * task_result_alloc(task_result_action_f action);
-task_result_t * task_result_alloc(task_result_action_f action, void * data);
-
+task_t * task_alloc(task_process_handler process,
+					task_result_handler handle_result);
 
 void task_free(task_t * task);
-
-void task_result_free(task_result_t * result);
 
 
 #endif /* TASK_H_ */

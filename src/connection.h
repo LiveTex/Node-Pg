@@ -27,12 +27,10 @@ enum connection_status {
 typedef struct connection_ {
 	PGconn * descriptor;
 
-	connection_status status;
+	bool is_broken;
 
-	size_t last_task_id;
-
-	struct task_ * task_origin;
-	struct task_result_ * result_origin;
+	struct task_ * current_task;
+	struct task_ * task_queue_origin;
 
 	v8::Persistent<v8::Function> callback;
 } connection_t;
@@ -50,14 +48,10 @@ void connection_push_task(connection_t * connection, struct task_ * task);
 struct task_ * connection_shift_task(connection_t * connection);
 
 
-void connection_push_result(connection_t * connection,
-							struct task_result_ * result);
+bool connection_is_empty(connection_t * connection);
 
 
-struct task_result_ * connection_shift_result(connection_t * connection);
-
-void connection_callback(connection_t * connection, const unsigned int argc,
-						 v8::Local<v8::Value> argv[]);
+void connection_callback(connection_t * connection, struct task_result_ * result);
 
 
 void connection_free(connection_t * connection);

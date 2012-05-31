@@ -71,6 +71,7 @@ js : index.js
 index.js : lib/pg/pg.js \
 		   lib/pg/pool.js \
 		   lib/pg/query.js \
+		   lib/pg/query-queue.js \
 		   lib/pg/connection.js \
 		   lib/index.js
 	$(JSC) $(addprefix --js , $^) \

@@ -8,26 +8,36 @@
 #ifndef ACTIONS_H_
 #define ACTIONS_H_
 
+
 #include <uv.h>
 
 #include "connection.h"
 
 #include "task.h"
 
-task_result_t * action_connect(connection_t * connection, void * data);
 
-void action_connect_result(connection_t * connection, task_result_t * result);
+void process_connection(void * data, connection_t * connection,
+						task_result_t * result);
+
+void handle_connection_result(task_result_t * result,
+							  struct connection_ * connection,
+							  int argc, v8::Handle<v8::Value> * argv);
 
 
-task_result_t * action_disconnect(connection_t * connection, void * data);
+void process_disconnection(void * data, connection_t * connection,
+						   task_result_t * result);
 
-void action_disconnect_result(connection_t * connection, task_result_t * result);
+void handle_disconnection_result(task_result_t * result,
+								 struct connection_ * connection,
+								 int argc, v8::Handle<v8::Value> * argv);
 
 
-task_result_t * action_execute(connection_t * connection, void * data);
+void process_execution(void * data, connection_t * connection,
+					   task_result_t * result);
 
-void action_execute_result(connection_t * connection, task_result_t * result);
-
+void handle_execution_result(task_result_t * result,
+							 struct connection_ * connection,
+							 int argc, v8::Handle<v8::Value> * argv);
 
 
 

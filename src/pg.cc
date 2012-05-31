@@ -32,14 +32,11 @@ v8::Handle<v8::Value> pg_connect(const v8::Arguments &args) {
     connection_t * connection =
 		connection_alloc(v8::Local<v8::Function>::Cast(args[1]));
 
-    task_t * task = task_alloc(action_connect);
+    task_t * task = task_alloc(process_connection, handle_connection_result);
     task->data = arg_extract_string(args[0]->ToString());
 
     connection_push_task(connection, task);
-
-    if (connection->status == CONNECTION_FREE) {
-    	connection_process(connection);
-    }
+	connection_process(connection);
 
     return scope.Close(v8::External::Wrap(connection));
 }
@@ -58,51 +55,14 @@ v8::Handle<v8::Value> pg_disconnect(const v8::Arguments &args) {
     	return throw_error("Invalid connection!");
     }
 
-	task_t * task = task_alloc(action_disconnect);
+	task_t * task =
+		task_alloc(process_disconnection, handle_disconnection_result);
 
 	connection_push_task(connection, task);
-
-	if (connection->status == CONNECTION_FREE) {
-		connection_process(connection);
-	}
+	connection_process(connection);
 
     return scope.Close(v8::Undefined());
 }
-
-
-v8::Handle<v8::Value> pg_is_busy(const v8::Arguments &args) {
-    v8::HandleScope scope;
-
-    if (args.Length() < 1) {
-		return throw_type_error("First argument must be connection!");
-	}
-
-    connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
-
-    if (connection != NULL && connection->status != CONNECTION_FREE) {
-    	return scope.Close(v8::True());
-    }
-
-    return scope.Close(v8::False());
-}
-
-
-v8::Handle<v8::Value> pg_is_valid(const v8::Arguments &args) {
-    v8::HandleScope scope;
-
-    if (args.Length() < 1) {
-		return throw_type_error("First argument must be connection!");
-	}
-
-    connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
-
-    if (connection != NULL && connection->status != CONNECTION_BROKEN) {
-    	return scope.Close(v8::True());
-    }
-
-    return scope.Close(v8::False());
-};
-
 
 
 v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
@@ -122,16 +82,13 @@ v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
     	return throw_error("Invalid connection!");
     }
 
-	task_t * task = task_alloc(action_execute);
+	task_t * task = task_alloc(process_execution, handle_execution_result);
 	task->data = arg_extract_string(args[1]->ToString());
 
 	connection_push_task(connection, task);
+	connection_process(connection);
 
-	if (connection->status == CONNECTION_FREE) {
-		connection_process(connection);
-	}
-
-    return scope.Close(v8::Integer::New(task->id));
+    return scope.Close(v8::Undefined());
 }
 
 
@@ -143,12 +100,6 @@ void init (v8::Handle<v8::Object> target) {
 
     target->Set(v8::String::New("exec"),
     			v8::FunctionTemplate::New(pg_exec)->GetFunction());
-
-    target->Set(v8::String::New("isBusy"),
-    			v8::FunctionTemplate::New(pg_is_busy)->GetFunction());
-
-    target->Set(v8::String::New("isValid"),
-    			v8::FunctionTemplate::New(pg_is_valid)->GetFunction());
 
     target->Set(v8::String::New("disconnect"),
     			v8::FunctionTemplate::New(pg_disconnect)->GetFunction());
