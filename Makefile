@@ -10,7 +10,7 @@ EXTERNS = node-externs.js pg-externs.js
 
 CC = clang 
 
-CFLAGS = -g3 -fno-inline -O3 -Wall -fPIC -DPIC -pthread
+CFLAGS = -ggdb -fno-inline -O3 -Wall -fPIC -DPIC -pthread
 LINK_FLAGS = -shared -pthread
 
 LIBS = pq v8
