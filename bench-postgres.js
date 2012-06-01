@@ -19,10 +19,7 @@ function callback(err, res) {
 
 	r++;
 	if (r == count) {
-		console.log('NODE-POSTGRES');
-		console.log('\t\tprocess time: ', Date.now() - t);
-		console.log('\t\trequest count: ', r);
-		console.log('\t\terror count: ', e);
+		console.log('[NODE-POSTGRES] R ', r, 'E ', e, 'T ', Date.now() - t);
 		process.exit();
 	}
 }
