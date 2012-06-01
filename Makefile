@@ -71,7 +71,7 @@ index.js : lib/pg/pg.js \
 		   lib/pg/query.js \
 		   lib/pg/query-queue.js \
 		   lib/pg/connection.js \
-		   lib/index.js
+		   lib/exports.js
 	$(JSC) $(addprefix --js , $^) \
 		   $(addprefix --externs lib/, $(EXTERNS)) \
 		   $(addprefix --js_output_file $(BUILD_DIR)/, $@)

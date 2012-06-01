@@ -1,9 +1,9 @@
 var pg = require('./bin');
 
-pg.init(8, {
+pg.init(12, {
 	'user': 'relive',
 	'dbname': 'relive',
-	'hostaddr': '192.168.48.15',
+	'hostaddr': '127.0.0.1',
 	'port': 6432
 });
 
@@ -12,14 +12,19 @@ var query = "SELECT NOW()";
 
 var r = 0;
 var e = 0;
+
+var mem = 0;
+
 function callback(err, res) {
 	if (err !== null) {
 		e++;
 	}
 
+	mem += process.memoryUsage().heapUsed/1024/1024;
+
 	r++;
 	if (r == count) {
-		console.log('[NODE-PG] R ', r, 'E ', e, 'T ', Date.now() - t);
+		console.log('[NODE-PG] | R:', r, ' | E:', e, ' | T:', Date.now() - t, ' | M:', (Math.round(mem/r*10)/10));
 		process.exit();
 	}
 }

@@ -3,25 +3,35 @@ var __pg = require('./pg.node');
 var events 		= require('events');
 var querystring = require('querystring');
 var util 		= require('util');
-var $JSCompiler_alias_NULL$$ = null, $pg$__pool$$ = $JSCompiler_alias_NULL$$;
-function $pg$__getPool$$() {
-  $pg$__pool$$ === $JSCompiler_alias_NULL$$ && ($pg$__pool$$ = new $pg$Pool$$);
-  return $pg$__pool$$
-}
-;function $pg$Pool$$() {
+var $JSCompiler_alias_NULL$$ = null;
+function $pg$Pool$$() {
+  events.EventEmitter.call(this);
   this.$__queryQueue$ = new $pg$QueryQueue$$;
   this.$__connections$ = []
 }
-function $JSCompiler_StaticMethods_init$$($JSCompiler_StaticMethods_init$self$$, $size$$9$$, $i$$1_options$$2$$) {
-  function $breakHandler$$($connection$$2_index$$43$$) {
-    $connection$$2_index$$43$$ = $JSCompiler_StaticMethods_init$self$$.$__connections$.indexOf($connection$$2_index$$43$$);
-    -1 !== $connection$$2_index$$43$$ && ($JSCompiler_StaticMethods_init$self$$.$__connections$[$connection$$2_index$$43$$] = new $pg$Connection$$($JSCompiler_StaticMethods_init$self$$.$__queryQueue$, $info$$, $breakHandler$$))
+util.inherits($pg$Pool$$, events.EventEmitter);
+$pg$Pool$$.prototype.init = function $$pg$Pool$$$$init$($size$$9$$, $options$$2$$) {
+  function $breakHandler$$($connection$$2$$, $error$$3$$) {
+    var $index$$43$$ = $self$$1$$.$__connections$.indexOf($connection$$2$$);
+    -1 !== $index$$43$$ && ($self$$1$$.$__connections$[$index$$43$$] = new $pg$Connection$$($self$$1$$.$__queryQueue$, $info$$, $breakHandler$$));
+    $self$$1$$.emit("break", $connection$$2$$, $error$$3$$)
   }
-  for(var $info$$ = decodeURI(querystring.stringify($i$$1_options$$2$$, " ")), $i$$1_options$$2$$ = 0;$i$$1_options$$2$$ < $size$$9$$;) {
-    $JSCompiler_StaticMethods_init$self$$.$__connections$[$i$$1_options$$2$$] = new $pg$Connection$$($JSCompiler_StaticMethods_init$self$$.$__queryQueue$, $info$$, $breakHandler$$), $i$$1_options$$2$$++
+  for(var $info$$ = decodeURI(querystring.stringify($options$$2$$, " ")), $self$$1$$ = this;this.$__connections$.length < $size$$9$$;) {
+    this.$__connections$.push(new $pg$Connection$$(this.$__queryQueue$, $info$$, $breakHandler$$))
   }
-}
-;function $pg$Query$$($command$$, $opt_callback$$5$$) {
+};
+$pg$Pool$$.prototype.exec = function $$pg$Pool$$$$exec$($query$$3$$, $opt_callback$$4$$) {
+  this.$__queryQueue$.push(new $pg$Query$$($query$$3$$, $opt_callback$$4$$));
+  for(var $i$$1$$ = 0, $l$$ = this.$__connections$.length;$i$$1$$ < $l$$;) {
+    $JSCompiler_StaticMethods_process$$(this.$__connections$[$i$$1$$]), $i$$1$$++
+  }
+};
+$pg$Pool$$.prototype.destroy = function $$pg$Pool$$$$destroy$() {
+  for(;0 < this.$__connections$.length;) {
+    this.$__connections$.shift().disconnect()
+  }
+};
+function $pg$Query$$($command$$, $opt_callback$$5$$) {
   this.$command$ = $command$$;
   this.$prev$ = this.next = this.$callback$ = $JSCompiler_alias_NULL$$;
   void 0 !== $opt_callback$$5$$ && (this.$callback$ = $opt_callback$$5$$)
@@ -31,12 +41,12 @@ function $JSCompiler_StaticMethods_init$$($JSCompiler_StaticMethods_init$self$$,
   this.origin.$prev$ = this.origin;
   this.origin.next = this.origin
 }
-$pg$QueryQueue$$.prototype.push = function $$pg$QueryQueue$$$$push$($query$$5$$) {
+$pg$QueryQueue$$.prototype.push = function $$pg$QueryQueue$$$$push$($query$$4$$) {
   var $tail$$ = this.origin.next;
-  $tail$$.$prev$ = $query$$5$$;
-  $query$$5$$.next = $tail$$;
-  this.origin.next = $query$$5$$;
-  $query$$5$$.$prev$ = this.origin
+  $tail$$.$prev$ = $query$$4$$;
+  $query$$4$$.next = $tail$$;
+  this.origin.next = $query$$4$$;
+  $query$$4$$.$prev$ = this.origin
 };
 $pg$QueryQueue$$.prototype.shift = function $$pg$QueryQueue$$$$shift$() {
   if(this.origin.$prev$ !== this.origin) {
@@ -66,13 +76,13 @@ function $pg$Connection$$($queryQueue$$, $options$$3$$, $opt_breakCallback$$) {
   var $descriptor$$1$$ = __pg.connect($options$$3$$, function($broken$$, $task$$, $err$$1$$, $res$$) {
     if(1 === $task$$) {
       $broken$$ && ($self$$2$$.$__descriptor$ = 0, $breakHandler$$1$$($err$$1$$));
-      var $query$$6$$ = $self$$2$$.$__currentQuery$;
+      var $query$$5$$ = $self$$2$$.$__currentQuery$;
       $self$$2$$.$__currentQuery$ = $JSCompiler_alias_NULL$$;
       $JSCompiler_StaticMethods_process$$($self$$2$$);
       process.nextTick(function() {
-        if($query$$6$$ !== $JSCompiler_alias_NULL$$) {
-          $query$$6$$.$callback$($err$$1$$, $res$$);
-          $query$$6$$.$callback$ = $JSCompiler_alias_NULL$$
+        if($query$$5$$ !== $JSCompiler_alias_NULL$$) {
+          $query$$5$$.$callback$($err$$1$$, $res$$);
+          $query$$5$$.$callback$ = $JSCompiler_alias_NULL$$
         }
       })
     }else {
@@ -90,19 +100,5 @@ function $JSCompiler_StaticMethods_process$$($JSCompiler_StaticMethods_process$s
 $pg$Connection$$.prototype.disconnect = function $$pg$Connection$$$$disconnect$() {
   0 !== this.$__descriptor$ && (__pg.disconnect(this.$__descriptor$), this.$__descriptor$ = 0)
 };
-exports.init = function $exports$init$($connectionCount$$, $connectionOptions$$) {
-  $JSCompiler_StaticMethods_init$$($pg$__getPool$$(), $connectionCount$$, $connectionOptions$$)
-};
-exports.exec = function $exports$exec$($query$$3$$, $opt_callback$$4$$) {
-  var $JSCompiler_StaticMethods_execQuery$self$$inline_0$$ = $pg$__getPool$$();
-  $JSCompiler_StaticMethods_execQuery$self$$inline_0$$.$__queryQueue$.push(new $pg$Query$$($query$$3$$, $opt_callback$$4$$));
-  for(var $i$$inline_2$$ = 0, $l$$inline_3$$ = $JSCompiler_StaticMethods_execQuery$self$$inline_0$$.$__connections$.length;$i$$inline_2$$ < $l$$inline_3$$;) {
-    $JSCompiler_StaticMethods_process$$($JSCompiler_StaticMethods_execQuery$self$$inline_0$$.$__connections$[$i$$inline_2$$]), $i$$inline_2$$++
-  }
-};
-exports.destroy = function $exports$destroy$() {
-  for(var $JSCompiler_StaticMethods_destroy$self$$inline_5$$ = $pg$__getPool$$();0 < $JSCompiler_StaticMethods_destroy$self$$inline_5$$.$__connections$.length;) {
-    $JSCompiler_StaticMethods_destroy$self$$inline_5$$.$__connections$.shift().disconnect()
-  }
-};
+module.exports = new $pg$Pool$$;
 
