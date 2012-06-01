@@ -6,7 +6,7 @@ var query = "SELECT NOW()";
 var options = {
 	user: 'relive',
 	database: 'relive',
-	host: '127.0.0.1',
+	host: '192.168.48.15',
 	port: '6432'
 };
 
