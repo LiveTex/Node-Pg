@@ -16,9 +16,7 @@ LINK_FLAGS = -shared -pthread
 LIBS = pq v8
 
 BUILD_DIR = bin
-INCLUDE_DIRS = /usr/local/include/node \
-			   /usr/include/node \
-			   /usr/include/postgresql 
+INCLUDE_DIRS = /usr/include/node /usr/include/postgresql 
 
 VPATH = src
 

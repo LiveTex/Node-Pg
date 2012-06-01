@@ -1,9 +1,9 @@
 var pg = require('./bin');
 
-pg.init(12, {
+pg.init(8, {
 	'user': 'relive',
 	'dbname': 'relive',
-	'hostaddr': '127.0.0.1',
+	'hostaddr': '192.168.48.15',
 	'port': 6432
 });
 
