@@ -11,16 +11,21 @@ var count = parseInt(process.argv[2]);
 var query = "SELECT NOW()";
 
 var r = 0;
+var e = 0;
 function callback(err, res) {
-	r++;
+	if (err !== null) {
+		e++;
+	}
 
-	//console.log(r, err, res);
-	if (r === count) {
-		console.log('node-pg: ' + count + '\t' + (Date.now() - t));
+	r++;
+	if (r == count) {
+		console.log('NODE-PG');
+		console.log('\t\tprocess time: ', Date.now() - t);
+		console.log('\t\trequest count: ', r);
+		console.log('\t\terror count: ', e);
 		process.exit();
 	}
 }
-
 var t = Date.now();
 var i = 0;
 while (i < count) {
