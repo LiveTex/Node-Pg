@@ -31,7 +31,12 @@ var t = Date.now();
 var i = 0;
 while (i < count) {
 	pg.connect(options, function(err, client) {
-		client.query(query, callback);
+		if (client === null) {
+			e++;
+			r++;
+		} else {
+			client.query(query, callback);
+		}
 	});
 	i++;
 }
