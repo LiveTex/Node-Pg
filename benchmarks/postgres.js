@@ -1,12 +1,12 @@
 var pg = require('pg');
 
-var count = 10000; //parseInt(process.argv[2]);
+var count = parseInt(process.argv[3]);
 var query = "SELECT NOW()";
 
 var options = {
 	user: 'relive',
 	database: 'relive',
-	host: '127.0.0.1',
+	host: process.argv[2],
 	port: '6432'
 };
 
@@ -39,6 +39,7 @@ while (i < count) {
 			client.query(query, callback);
 		}
 	});
+
 	i++;
 }
 

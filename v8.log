@@ -1207,9 +1207,9 @@ code-creation,LazyCompile,0x2ea0b2b95240,1664,"replace native string.js:216",0x1
 code-creation,RegExp,0x2ea0b2b958c0,880,"^\\#\\!.*"
 code-creation,LazyCompile,0x2ea0b2b95c40,872,"defineProperty native v8natives.js:971",0x1089260f8b8,~
 code-creation,CallIC,0x2ea0b2b96040,203,"substring"
-code-creation,Script,0x2ea0b2b96120,160,"/home/kononencheg/Documents/Node-PG/bench-pg.js",0x26dc48ca8578,
-code-creation,Function,0x2ea0b2b961c0,428,"callback /home/kononencheg/Documents/Node-PG/bench-pg.js:14",0x26dc48ca86f0,~
-code-creation,LazyCompile,0x2ea0b2b96380,744," /home/kononencheg/Documents/Node-PG/bench-pg.js:1",0x26dc48ca84a0,~
+code-creation,Script,0x2ea0b2b96120,160,"/home/kononencheg/Documents/Node-PG/pg.js",0x26dc48ca8578,
+code-creation,Function,0x2ea0b2b961c0,428,"callback /home/kononencheg/Documents/Node-PG/pg.js:14",0x26dc48ca86f0,~
+code-creation,LazyCompile,0x2ea0b2b96380,744," /home/kononencheg/Documents/Node-PG/pg.js:1",0x26dc48ca84a0,~
 tick,0x5f4d91,0x7fffd5a30110,0,0x15,2,0x2ea0b2b76bed,0x2ea0b2b76cf9,0x2ea0b2b7578b,0x2ea0b2b751cb,0x2ea0b2b76fab,0x2ea0b2b29210
 code-creation,Stub,0x2ea0b2b96680,141,"ToBooleanStub_NullSpecObject"
 code-creation,CallIC,0x2ea0b2b96720,125,"_resolveFilename"
@@ -1997,8 +1997,8 @@ tick,0x7fdde603e033,0x7fffd5a30920,0,0x0,4
 tick,0x7fdde603e033,0x7fffd5a30920,0,0x0,4
 tick,0x2ea0b2b29340,0x7fffd5a30538,0,0x2ea0b2ba4ed7,0
 tick,0x7fdde603e033,0x7fffd5a30920,0,0x0,4
-code-creation,LazyCompile,0x2ea0b2b2fe40,428,"callback /home/kononencheg/Documents/Node-PG/bench-pg.js:14",0x26dc48ca86f0,~
-code-creation,LazyCompile,0x2ea0b2ba6040,803,"callback /home/kononencheg/Documents/Node-PG/bench-pg.js:14",0x26dc48ca86f0,*
+code-creation,LazyCompile,0x2ea0b2b2fe40,428,"callback /home/kononencheg/Documents/Node-PG/pg.js:14",0x26dc48ca86f0,~
+code-creation,LazyCompile,0x2ea0b2ba6040,803,"callback /home/kononencheg/Documents/Node-PG/pg.js:14",0x26dc48ca86f0,*
 tick,0x7fdde5fdf860,0x7fffd5a30780,0,0x0,4
 tick,0x7fdde4d60b20,0x7fffd5a30458,0,0x7fdde4d608ec,0,0x2ea0b2b9cf1a,0x2ea0b2b8d133
 tick,0x7fdde603e033,0x7fffd5a30920,0,0x0,4
