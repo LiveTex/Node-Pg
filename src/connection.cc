@@ -94,6 +94,12 @@ void connection_process(connection_t * connection) {
 }
 
 
+void connection_break(connection_t * connection) {
+	PQfinish(connection->descriptor);
+	connection->is_broken = true;
+}
+
+
 void connection_push_task(connection_t * connection, task_t * task) {
 	task_t * tail = connection->task_queue_origin->next;
 

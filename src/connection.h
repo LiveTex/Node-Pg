@@ -42,6 +42,9 @@ connection_t * connection_alloc(v8::Local<v8::Function> callback);
 void connection_process(connection_t * connection);
 
 
+void connection_break(connection_t * connection);
+
+
 void connection_push_task(connection_t * connection, struct task_ * task);
 
 

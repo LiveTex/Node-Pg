@@ -41,9 +41,7 @@ void process_connection(void * data, connection_t * connection,
 	if (status != CONNECTION_OK) {
 		result->error = copy_string(PQerrorMessage(connection->descriptor));
 
-		PQfinish(connection->descriptor);
-
-		connection->is_broken = true;
+		connection_break(connection);
 	}
 
 	free(data);
@@ -72,9 +70,7 @@ void handle_connection_result(task_result_t * result,
 
 void process_disconnection(void * data, connection_t * connection,
 						   task_result_t * result) {
-	PQfinish(connection->descriptor);
-
-	connection->is_broken = true;
+	connection_break(connection);
 }
 
 void handle_disconnection_result(task_result_t * result,
@@ -99,10 +95,7 @@ void process_execution(void * data, connection_t * connection,
 
 	if (status != CONNECTION_OK) {
 		result->error = copy_string(PQerrorMessage(connection->descriptor));
-
-		PQfinish(connection->descriptor);
-
-		connection->is_broken = true;
+		connection_break(connection);
 	} else {
 		PGresult * rd = PQexec(connection->descriptor, (char *) data);
 
@@ -124,6 +117,7 @@ void process_execution(void * data, connection_t * connection,
 
 			default: {
 				result->error = copy_string(PQresultErrorMessage(rd));
+
 				break;
 			}
 		}
