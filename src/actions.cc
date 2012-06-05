@@ -32,7 +32,6 @@ v8::Handle<v8::Value> get_null_arg() {
 }
 
 
-
 void process_connection(void * data, connection_t * connection,
 						task_result_t * result) {
 
@@ -52,10 +51,8 @@ void process_connection(void * data, connection_t * connection,
 
 
 void handle_connection_result(task_result_t * result,
-							  connection_t * connection) {
-
-	const unsigned argc = 4;
-	v8::Handle<v8::Value> argv[argc];
+							  connection_t * connection,
+							  int argc, v8::Handle<v8::Value> * argv) {
 
 	connection_action_type =
 			v8::Persistent<v8::Integer>::New(v8::Integer::New(0));
@@ -71,23 +68,18 @@ void handle_connection_result(task_result_t * result,
 	}
 
 	argv[3] = get_null_arg();
-
-	connection->callback->Call
-		(v8::Context::GetCurrent()->Global(), argc, argv);
 }
 
 void process_disconnection(void * data, connection_t * connection,
 						   task_result_t * result) {
-	/*PQfinish(connection->descriptor);
+	PQfinish(connection->descriptor);
 
-	connection->is_broken = true;*/
+	connection->is_broken = true;
 }
 
 void handle_disconnection_result(task_result_t * result,
-								 struct connection_ * connection) {
-
-	const unsigned argc = 4;
-	v8::Handle<v8::Value> argv[argc];
+								 struct connection_ * connection,
+								 int argc, v8::Handle<v8::Value> * argv) {
 
 	disconnection_action_type =
 		v8::Persistent<v8::Integer>::New(v8::Integer::New(-1));
@@ -96,9 +88,6 @@ void handle_disconnection_result(task_result_t * result,
 	argv[1] = disconnection_action_type;
 	argv[2] = get_null_arg();
 	argv[3] = get_null_arg();
-
-	connection->callback->Call
-		(v8::Context::GetCurrent()->Global(), argc, argv);
 }
 
 
@@ -146,11 +135,8 @@ void process_execution(void * data, connection_t * connection,
 }
 
 void handle_execution_result(task_result_t * result,
-							 struct connection_ * connection) {
-
-	const unsigned argc = 4;
-	v8::Handle<v8::Value> argv[argc];
-
+							 struct connection_ * connection,
+							 int argc, v8::Handle<v8::Value> * argv) {
 	execution_action_type =
 		v8::Persistent<v8::Integer>::New(v8::Integer::New(1));
 
@@ -173,7 +159,4 @@ void handle_execution_result(task_result_t * result,
 
 		data_table_free(table);
 	}
-
-	connection->callback->Call
-		(v8::Context::GetCurrent()->Global(), argc, argv);
 }

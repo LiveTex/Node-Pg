@@ -32,7 +32,13 @@ void connection_handler(uv_work_t * work) {
 	task_t * task = connection->current_task;
 
 	if (task != NULL) {
-		task->handle_result(task->result, connection);
+		const unsigned argc = 4;
+		v8::Local<v8::Value> argv[argc];
+
+		task->handle_result(task->result, connection, argc, argv);
+
+		connection->callback->Call
+				(v8::Context::GetCurrent()->Global(), argc, argv);
 	}
 
 	task_free(connection->current_task);
