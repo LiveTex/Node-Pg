@@ -14,6 +14,7 @@
 typedef struct {
 
 	char ** columns;
+	Oid * column_types;
 	char *** rows;
 
 	int columns_count;

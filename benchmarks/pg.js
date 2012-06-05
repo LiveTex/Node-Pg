@@ -1,6 +1,6 @@
 var pg = require('../bin');
 
-pg.init(12, {
+pg.init(10, {
 	'user': 'relive',
 	'dbname': 'relive',
 	'hostaddr': process.argv[2],
@@ -9,7 +9,7 @@ pg.init(12, {
 });
 
 var count = parseInt(process.argv[3]);
-var query = "SELECT true, 1, false";
+var query = process.argv[4]  || "SELECT 1";
 
 var r = 0;
 var e = 0;
