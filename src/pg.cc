@@ -33,7 +33,10 @@ v8::Handle<v8::Value> pg_connect(const v8::Arguments &args) {
 		connection_alloc(v8::Local<v8::Function>::Cast(args[1]));
 
     task_t * task = task_alloc(process_connection, handle_connection_result);
-    task->data = arg_extract_string(args[0]->ToString());
+
+	v8::String::Utf8Value str(args[0]->ToString());
+    task->data = copy_string(*str);
+
 
     connection_push_task(connection, task);
 	connection_process(connection);
@@ -83,7 +86,9 @@ v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
     }
 
 	task_t * task = task_alloc(process_execution, handle_execution_result);
-	task->data = arg_extract_string(args[1]->ToString());
+
+	v8::String::Utf8Value str(args[1]->ToString());
+    task->data = copy_string(*str);
 
 	connection_push_task(connection, task);
 	connection_process(connection);

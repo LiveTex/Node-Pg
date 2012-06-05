@@ -24,8 +24,7 @@ typedef void (* task_process_handler) (void * data,
 
 
 typedef void (* task_result_handler) (task_result_t * result,
-									  struct connection_ * connection,
-									  int argc, v8::Handle<v8::Value> * argv);
+									  struct connection_ * connection);
 
 
 struct task_ {

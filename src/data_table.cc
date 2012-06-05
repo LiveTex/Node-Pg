@@ -39,7 +39,7 @@ void data_table_populate(data_table_t * table, PGresult * result) {
 	for (i = 0; i < table->rows_count; i++) {
 		for (j = 0; j < table->columns_count; j++) {
 			table->rows[i][j] = copy_string
-					(PQgetvalue(result, i , j), PQgetlength(result, i, j) + 1);
+					(PQgetvalue(result, i , j), PQgetlength(result, i, j));
 		}
 	}
 }
@@ -53,10 +53,10 @@ v8::Local<v8::Array> data_table_get_array(data_table_t * table) {
 		v8::Local<v8::Object> record = v8::Object::New();
 
 		for (j = 0; j < table->columns_count; j++) {
-			v8::Local<v8::String> data =
-				v8::Local<v8::String>::New(v8::String::New(table->rows[i][j]));
+			v8::Local<v8::String> field = v8::String::NewSymbol(table->columns[j]);
+			v8::Local<v8::String> value = v8::String::New(table->rows[i][j]);
 
-			record->Set(v8::String::New(table->columns[j]), data);
+			record->Set(field, value);
 		}
 
 		result->Set(i, record);

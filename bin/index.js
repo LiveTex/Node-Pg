@@ -75,14 +75,17 @@ pg.Connection = function(queryQueue, options, breakCallback) {
   this.__currentQuery = null;
   this.__descriptor = 0;
   var self = this;
-  var descriptor = __pg.connect(options, function(broken, task, err, res) {
+	this.__descriptor = __pg.connect(options, function(broken, task, err, res) {
     if(broken) {
       self.__descriptor = 0;
       breakCallback(self, err)
     }
+
+	console.log(res);
+
     if(task === 1) {
       var query = self.__currentQuery;
-		self.__currentQuery = null;
+      self.__currentQuery = null;
       self.process();
       process.nextTick(function() {
         if(query !== null) {
@@ -92,7 +95,7 @@ pg.Connection = function(queryQueue, options, breakCallback) {
       })
     }else {
       if(task === 0 && !broken) {
-        self.__descriptor = descriptor;
+       // self.__descriptor = descriptor;
         self.process()
       }
     }

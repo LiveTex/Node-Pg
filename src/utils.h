@@ -26,8 +26,4 @@ v8::Local<v8::Value> create_error(v8::Local<v8::String> msg);
 char * copy_string(const char * source);
 char * copy_string(const char * source, size_t length);
 
-char * arg_extract_string(v8::Local<v8::String> arg);
-
-void arg_free_string(char * string);
-
 #endif /* UTILS_H_ */

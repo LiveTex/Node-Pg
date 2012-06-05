@@ -32,13 +32,7 @@ void connection_handler(uv_work_t * work) {
 	task_t * task = connection->current_task;
 
 	if (task != NULL) {
-		const unsigned argc = 4;
-		v8::Handle<v8::Value> argv[argc];
-
-		task->handle_result(task->result, connection, argc, argv);
-
-		connection->callback->Call
-				(v8::Context::GetCurrent()->Global(), argc, argv);
+		task->handle_result(task->result, connection);
 	}
 
 	task_free(connection->current_task);
@@ -80,8 +74,12 @@ void connection_process(connection_t * connection) {
 			uv_work_t * work = (uv_work_t *) malloc(sizeof * work);
 			work->data = connection;
 
-			uv_queue_work
-				(uv_default_loop(), work, connection_work, connection_handler);
+			/*uv_queue_work
+				(uv_default_loop(), work, connection_work, connection_handler);*/
+
+
+			connection_work(work);
+			connection_handler(work);
 		}
 	}
 }

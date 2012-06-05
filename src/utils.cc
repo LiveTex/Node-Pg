@@ -41,17 +41,27 @@ v8::Local<v8::Value> create_error(v8::Local<v8::String> msg) {
 }
 
 char * copy_string(const char * source) {
-	return copy_string(source, strlen(source) + 1);
-}
+	size_t length = strlen(source) + 1;
 
-char * copy_string(const char * source, size_t length) {
-	return (char *) memcpy(malloc(sizeof(char) * length), source, length);
-}
-
-char * arg_extract_string(v8::Local<v8::String> arg) {
-	char * string = (char *) malloc(sizeof(char) * arg->Length());
-
-	arg->WriteUtf8(string);
+	char * string = (char *) malloc(sizeof(char) * length);
+	memcpy(string, source, length);
 
 	return string;
 }
+
+char * copy_string(const char * source, size_t length) {
+	bool is_broken = length == 0 || source[length - 1] != '\0';
+	if (is_broken) {
+		length++;
+	}
+
+	char * string = (char *) malloc(sizeof(char) * length);
+	memcpy(string, source, length);
+
+	if (is_broken) {
+		string[length - 1] = '\0';
+	}
+
+	return string;
+}
+
