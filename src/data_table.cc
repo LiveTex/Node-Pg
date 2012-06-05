@@ -12,6 +12,27 @@
 
 #include "data_table.h"
 
+
+
+
+v8::Local<v8::Value> get_field(const char * data) {
+	return v8::String::NewSymbol(data);
+}
+
+
+v8::Local<v8::Value> get_value(const char * data) {
+	if (strlen(data) == 1) {
+		if (data[0] == 't') {
+			return v8::Local<v8::Value>::New(v8::True());
+		} else if (data[0] == 'f') {
+			return v8::Local<v8::Value>::New(v8::False());
+		}
+	}
+
+	return v8::String::New(data);
+}
+
+
 data_table_t * data_table_alloc(int rows_count, int columns_count) {
 	data_table_t * table = (data_table_t *) malloc(sizeof(data_table_t));
 
@@ -45,19 +66,6 @@ void data_table_populate(data_table_t * table, PGresult * result) {
 }
 
 
-v8::Local<v8::Value> get_value(const char * data) {
-	if (strlen(data) == 1) {
-		if (data[0] == 't') {
-			return v8::Local<v8::Value>::New(v8::True());
-		} else if (data[0] == 'f') {
-			return v8::Local<v8::Value>::New(v8::False());
-		}
-	}
-
-	return v8::String::New(data);
-}
-
-
 v8::Local<v8::Array> data_table_get_array(data_table_t * table) {
 	v8::Local<v8::Array> result = v8::Array::New(table->rows_count);
 
@@ -67,9 +75,8 @@ v8::Local<v8::Array> data_table_get_array(data_table_t * table) {
 		v8::Local<v8::Object> record = v8::Object::New();
 
 		for (j = 0; j < table->columns_count; j++) {
-			v8::Local<v8::String> field = v8::String::NewSymbol(table->columns[j]);
-
-			record->Set(field, get_value(table->rows[i][j]));
+			record->Set(get_field(table->columns[j]),
+						get_value(table->rows[i][j]));
 		}
 
 		result->Set(i, record);

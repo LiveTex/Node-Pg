@@ -9,7 +9,7 @@ pg.init(12, {
 });
 
 var count = parseInt(process.argv[3]);
-var query = "SELECT true";
+var query = "SELECT true, 1, false";
 
 var r = 0;
 var e = 0;
