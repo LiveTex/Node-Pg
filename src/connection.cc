@@ -74,12 +74,15 @@ void connection_process(connection_t * connection) {
 			uv_work_t * work = (uv_work_t *) malloc(sizeof * work);
 			work->data = connection;
 
-			/*uv_queue_work
-				(uv_default_loop(), work, connection_work, connection_handler);*/
+			// ASYNC
+			uv_queue_work
+				(uv_default_loop(), work, connection_work, connection_handler);
 
-
+			// SYNC
+			/*
 			connection_work(work);
 			connection_handler(work);
+			*/
 		}
 	}
 }

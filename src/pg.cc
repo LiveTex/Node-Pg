@@ -17,13 +17,6 @@
 
 #include <signal.h>
 
-void zzz(int)
-{
-	printf("ERROR[zzz()]: ?\n");
-}
-
-
-
 
 v8::Handle<v8::Value> pg_connect(const v8::Arguments &args) {
     v8::HandleScope scope;
@@ -108,12 +101,6 @@ v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
 
 void init (v8::Handle<v8::Object> target) {
     v8::HandleScope scope;
-
-	if (signal(SIGSEGV, zzz) == SIG_ERR)
-	{
-		printf("ERROR[signal()]: ?\n");
-	}
-
 
     target->Set(v8::String::New("connect"),
     			v8::FunctionTemplate::New(pg_connect)->GetFunction());

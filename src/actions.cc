@@ -115,10 +115,7 @@ void process_execution(void * data, connection_t * connection,
 
 		connection->is_broken = true;
 	} else {
-		printf("QUUUEY: %s\n", (char *) data);
-
 		PGresult * rd = PQexec(connection->descriptor, (char *) data);
-
 
 		switch (PQresultStatus(rd)) {
 			case PGRES_COMMAND_OK: {
