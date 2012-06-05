@@ -3,7 +3,7 @@
 
 JSC = java -jar utils/compiler.jar \
 		   --warning_level VERBOSE \
-		   --compilation_level ADVANCED_OPTIMIZATIONS \
+		   --compilation_level WHITESPACE_ONLY \
 		   --formatting PRETTY_PRINT --debug
 
 EXTERNS = node-externs.js pg-externs.js
@@ -45,6 +45,7 @@ pg.node : pg.o \
 		  utils.o \
 		  actions.o \
 		  task.o \
+		  data_table.o \
 		  connection.o 
 	$(CC) -o $(BUILD_DIR)/$@ \
 	   	  $(addprefix $(BUILD_DIR)/, $^) \

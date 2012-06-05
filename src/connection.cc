@@ -77,14 +77,13 @@ void connection_process(connection_t * connection) {
 		connection->current_task = connection_shift_task(connection);
 
 		if (connection->current_task != NULL) {
-			uv_work_t * work = (uv_work_t *) malloc(sizeof(uv_work_t));
+			uv_work_t * work = (uv_work_t *) malloc(sizeof * work);
 			work->data = connection;
 
 			uv_queue_work
 				(uv_default_loop(), work, connection_work, connection_handler);
 		}
 	}
-
 }
 
 

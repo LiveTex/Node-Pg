@@ -4,6 +4,7 @@ pg.init(12, {
 	'user': 'relive',
 	'dbname': 'relive',
 	'hostaddr': process.argv[2],
+	'password': 'fyfvdcthfd5',
 	'port': 6432
 });
 
@@ -32,7 +33,9 @@ function callback(err, res) {
 var t = Date.now();
 var i = 0;
 while (i < count) {
-	pg.exec(query, callback);
+	setTimeout(function() {
+		pg.exec(query, callback);
+    }, Math.random() * 100);
 
 	i++;
 }

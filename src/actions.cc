@@ -14,6 +14,7 @@
 #include "utils.h"
 #include "actions.h"
 #include "connection.h"
+#include "data_table.h"
 
 
 static v8::Persistent<v8::Value> connection_action_type;
@@ -22,8 +23,6 @@ static v8::Persistent<v8::Value> execution_action_type;
 
 static v8::Persistent<v8::Value> null_arg;
 
-
-v8::Local<v8::Array> fetch_result(PGresult * result);
 
 
 v8::Handle<v8::Value> get_null_arg() {
@@ -74,9 +73,9 @@ void handle_connection_result(task_result_t * result,
 
 void process_disconnection(void * data, connection_t * connection,
 						   task_result_t * result) {
-	PQfinish(connection->descriptor);
+	/*PQfinish(connection->descriptor);
 
-	connection->is_broken = true;
+	connection->is_broken = true;*/
 }
 
 void handle_disconnection_result(task_result_t * result,
@@ -106,28 +105,32 @@ void process_execution(void * data, connection_t * connection,
 
 		connection->is_broken = true;
 	} else {
-		PGresult * result_descriptor =
-					PQexec(connection->descriptor, (char *) data);
+		PGresult * rd = PQexec(connection->descriptor, (char *) data);
 
-		switch (PQresultStatus(result_descriptor)) {
+
+		switch (PQresultStatus(rd)) {
 			case PGRES_COMMAND_OK: {
-				PQclear(result_descriptor);
 				break;
 			}
 
 			case PGRES_TUPLES_OK: {
-				result->data = result_descriptor;
+				data_table_t * table =
+						data_table_alloc(PQntuples(rd), PQnfields(rd));
+
+				data_table_populate(table, rd);
+
+				result->data = table;
+
 				break;
 			}
 
 			default: {
-				result->error =
-						copy_string(PQresultErrorMessage(result_descriptor));
-
-				PQclear(result_descriptor);
+				result->error = copy_string(PQresultErrorMessage(rd));
 				break;
 			}
 		}
+
+		PQclear(rd);
 	}
 
 	free(data);
@@ -136,7 +139,6 @@ void process_execution(void * data, connection_t * connection,
 void handle_execution_result(task_result_t * result,
 							 struct connection_ * connection,
 							 int argc, v8::Handle<v8::Value> * argv) {
-
 
 	execution_action_type =
 		v8::Persistent<v8::Integer>::New(v8::Integer::New(1));
@@ -154,42 +156,10 @@ void handle_execution_result(task_result_t * result,
 	if (result->data == NULL) {
 		argv[3] = get_null_arg();
 	} else {
-		PGresult * result_descriptor = (PGresult * ) result->data;
+		data_table_t * table = (data_table_t * ) result->data;
 
-		argv[3] = fetch_result(result_descriptor);
+		argv[3] = data_table_get_array(table);
 
-		PQclear(result_descriptor);
+		data_table_free(table);
 	}
-}
-
-
-v8::Local<v8::Array> fetch_result(PGresult * result_descriptor) {
-	int row_count = PQntuples(result_descriptor);
-	int field_count = PQnfields(result_descriptor);
-	int i, j;
-
-	v8::Local<v8::Array> result = v8::Array::New(row_count);
-
-	v8::Local<v8::String> * fields =
-		(v8::Local<v8::String> *)
-			malloc(sizeof(v8::Local<v8::String> *) * field_count);
-
-	for (j = 0; j < field_count; ++j) {
-		fields[j] = v8::String::New(PQfname(result_descriptor, j));
-	}
-
-	for (i = 0; i < row_count; ++i) {
-		v8::Local<v8::Object> record = v8::Object::New();
-
-		for (j = 0; j < field_count; ++j) {
-			record->Set(fields[j],
-						v8::String::New(PQgetvalue(result_descriptor, i , j)));
-		}
-
-		result->Set(i, record);
-	}
-
-	free(fields);
-
-	return result;
 }

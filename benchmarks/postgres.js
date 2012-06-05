@@ -1,5 +1,6 @@
 var pg = require('pg');
 
+
 var count = parseInt(process.argv[3]);
 var query = "SELECT NOW()";
 

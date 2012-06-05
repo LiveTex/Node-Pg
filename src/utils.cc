@@ -41,8 +41,11 @@ v8::Local<v8::Value> create_error(v8::Local<v8::String> msg) {
 }
 
 char * copy_string(const char * source) {
-	size_t l = strlen(source) + 1;
-	return (char *) memcpy(malloc(sizeof(char) * l), source, l);
+	return copy_string(source, strlen(source) + 1);
+}
+
+char * copy_string(const char * source, size_t length) {
+	return (char *) memcpy(malloc(sizeof(char) * length), source, length);
 }
 
 char * arg_extract_string(v8::Local<v8::String> arg) {
@@ -51,9 +54,4 @@ char * arg_extract_string(v8::Local<v8::String> arg) {
 	arg->WriteUtf8(string);
 
 	return string;
-}
-
-
-void arg_free_string(char * string) {
-	free(string);
 }
