@@ -9,7 +9,7 @@ pg.init(12, {
 });
 
 var count = parseInt(process.argv[3]);
-var query = "SELECT NOW()";
+var query = "SELECT true";
 
 var r = 0;
 var e = 0;
@@ -22,6 +22,8 @@ function callback(err, res) {
 	}
 
 	mem += process.memoryUsage().heapUsed/1024/1024;
+
+	console.log(res);
 
 	r++;
 	if (r === count) {
@@ -39,3 +41,5 @@ while (i < count) {
 
 	i++;
 }
+
+
