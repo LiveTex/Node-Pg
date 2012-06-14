@@ -1,5 +1,3 @@
 .*
 .*/
-bin/*.o
-bin/*.node
-/nbproject/private/
+bin/*

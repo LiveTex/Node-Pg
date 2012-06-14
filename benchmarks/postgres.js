@@ -2,7 +2,7 @@ var pg = require('pg');
 
 
 var count = parseInt(process.argv[3]);
-var query = "SELECT 1";
+var query = process.argv[4]  || "SELECT 1";
 
 var options = {
 	user: 'relive',
@@ -22,7 +22,7 @@ function callback(err, res) {
 
 	mem += process.memoryUsage().heapUsed/1024/1024;
 
-	//console.log(res);
+	console.log(res);
 
 	r++;
 	if (r == count) {

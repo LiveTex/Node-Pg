@@ -13,6 +13,7 @@
 #include "data_table.h"
 
 
+
 static v8::Persistent<v8::Value> true_value;
 static v8::Persistent<v8::Value> false_value;
 
@@ -44,6 +45,9 @@ v8::Local<v8::Value> get_field(const char * data) {
 
 
 v8::Local<v8::Value> get_value(const char * data, Oid type_id) {
+	if (data == NULL) {
+		return v8::Local<v8::Value>::New(v8::Null());
+	}
 
 	// boolean
 	if (type_id == 16) {
@@ -56,7 +60,7 @@ v8::Local<v8::Value> get_value(const char * data, Oid type_id) {
 
 	v8::Local<v8::Value> value = v8::String::New(data);
 
-	//printf("> %d\n", type_id);
+	printf("> %d\n", type_id);
 
 	switch (type_id) {
 		case 20: // int8
@@ -107,8 +111,12 @@ void data_table_populate(data_table_t * table, PGresult * result) {
 
 	for (i = 0; i < table->rows_count; i++) {
 		for (j = 0; j < table->columns_count; j++) {
-			table->rows[i][j] = copy_string
+			if (PQgetisnull(result, i, j) == 1) {
+				table->rows[i][j] = NULL;
+			} else {
+				table->rows[i][j] = copy_string
 					(PQgetvalue(result, i , j), PQgetlength(result, i, j));
+			}
 		}
 	}
 }
@@ -143,7 +151,9 @@ void data_table_free(data_table_t * table) {
 
 	for (i = 0; i < table->rows_count; i++) {
 		for (j = 0; j < table->columns_count; j++) {
-			free(table->rows[i][j]);
+			if (table->rows[i][j] != NULL) {
+				free(table->rows[i][j]);
+			}
 		}
 
 		free(table->rows[i]);
