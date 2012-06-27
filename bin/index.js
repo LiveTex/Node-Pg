@@ -85,9 +85,7 @@ pg.QueryQueue.prototype.shift = function() {
   }
   return null
 };
-var ii = 0;
 pg.Connection = function(queryQueue, options, breakCallback) {
-  console.log("connection", ++ii);
   this.__queryQueue = queryQueue;
   this.__currentQuery = null;
   this.__descriptor = 0;
@@ -95,14 +93,12 @@ pg.Connection = function(queryQueue, options, breakCallback) {
   var self = this;
   var descriptor = __pg.connect(options, function(broken, task, err, res) {
     if(broken) {
-      console.log("disconnected");
       self.__descriptor = 0;
       breakCallback(self, err)
     }else {
       self.__isBusy = false
     }
     if(task === 1) {
-      console.log("query exec");
       var query = self.__currentQuery;
       self.__currentQuery = null;
       self.process();
@@ -114,7 +110,6 @@ pg.Connection = function(queryQueue, options, breakCallback) {
       })
     }else {
       if(task === 0 && !broken) {
-        console.log("connected");
         self.__descriptor = descriptor;
         self.process()
       }

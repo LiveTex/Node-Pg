@@ -23,7 +23,7 @@ function callback(err, res) {
 
 	mem += process.memoryUsage().heapUsed/1024/1024;
 
-	console.log(res);
+	//console.log(res);
 
 	r++;
 	if (r === count) {
@@ -37,7 +37,7 @@ var i = 0;
 while (i < count) {
 	setTimeout(function() {
 		pg.exec(query, callback);
-    }, Math.random() * 5000);
+    }, Math.random() * 10000);
 
 	i++;
 }
