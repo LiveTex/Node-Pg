@@ -34,14 +34,16 @@ function callback(err, res) {
 var t = Date.now();
 var i = 0;
 while (i < count) {
-	pg.connect(options, function(err, client) {
-		if (client === null) {
-			e++;
-			r++;
-		} else {
-			client.query(query, callback);
-		}
-	});
+	setTimeout(function() {
+			pg.connect(options, function(err, client) {
+			if (client === null) {
+				e++;
+				r++;
+			} else {
+				client.query(query, callback);
+			}
+		});
+	}, Math.random() * 100);
 
 	i++;
 }

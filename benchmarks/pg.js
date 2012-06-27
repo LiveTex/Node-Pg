@@ -17,27 +17,34 @@ var e = 0;
 var mem = 0;
 
 function callback(err, res) {
+	pg.exec(query, callback);
+
 	if (err !== null) {
 		e++;
 	}
 
-	mem += process.memoryUsage().heapUsed/1024/1024;
 
-	//console.log(res);
+	mem += process.memoryUsage().heapUsed/1024/1024;
 
 	r++;
 	if (r === count) {
 		console.log('[NODE-PG] | R:', r, ' | E:', e, ' | T:', Date.now() - t, ' | M:', (Math.round(mem/r*10)/10));
 		process.exit();
 	}
+
+	//console.log(r);
 }
+
 
 var t = Date.now();
 var i = 0;
 while (i < count) {
-	setTimeout(function() {
+
+	//setTimeout(function() {
 		pg.exec(query, callback);
-    }, Math.random() * 10000);
+	//}, Math.random() * 10000);
+
+
 
 	i++;
 }

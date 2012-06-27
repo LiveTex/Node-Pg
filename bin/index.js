@@ -20,19 +20,19 @@ pg.Pool.prototype.init = function(size, options, opt_breakCallback) {
 pg.Pool.prototype.exec = function(query, opt_callback) {
   this.__queryQueue.push(new pg.Query(query, opt_callback));
   var i = 0, l = this.__connections.length;
-  var allBusy = true;
   while(i < l) {
-    if(!this.__connections[i].isBusy()) {
-      this.__connections[i].process();
-      allBusy = false
-    }
+    this.__connections[i].process();
     i++
   }
-  if(allBusy === true && l < this.__maxSize) {
+  if(this.__queryQueue.length > 0 && this.__maxSize > l) {
     this.__spawnConnection()
   }
 };
 pg.Pool.prototype.destroy = function() {
+  if(this.__processTimeout !== -1) {
+    clearTimeout(this.__processTimeout);
+    this.__processTimeout = -1
+  }
   while(this.__connections.length > 0) {
     this.__connections.shift().disconnect()
   }
@@ -88,15 +88,11 @@ pg.QueryQueue.prototype.shift = function() {
 pg.Connection = function(queryQueue, options, breakCallback) {
   this.__queryQueue = queryQueue;
   this.__currentQuery = null;
-  this.__descriptor = 0;
-  this.__isBusy = false;
   var self = this;
-  var descriptor = __pg.connect(options, function(broken, task, err, res) {
+  this.__descriptor = __pg.connect(options, function(broken, task, err, res) {
     if(broken) {
       self.__descriptor = 0;
       breakCallback(self, err)
-    }else {
-      self.__isBusy = false
     }
     if(task === 1) {
       var query = self.__currentQuery;
@@ -110,18 +106,13 @@ pg.Connection = function(queryQueue, options, breakCallback) {
       })
     }else {
       if(task === 0 && !broken) {
-        self.__descriptor = descriptor;
         self.process()
       }
     }
   })
 };
-pg.Connection.prototype.isBusy = function() {
-  return this.__isBusy
-};
 pg.Connection.prototype.process = function() {
   if(this.__descriptor !== 0 && this.__currentQuery === null) {
-    this.__isBusy = true;
     this.__currentQuery = this.__queryQueue.shift();
     if(this.__currentQuery !== null) {
       __pg.exec(this.__descriptor, this.__currentQuery.command)
