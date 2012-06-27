@@ -1,6 +1,6 @@
 var pg = require('../bin');
 
-pg.init(10, {
+pg.init({
 	'user': 'relive',
 	'dbname': 'relive',
 	'hostaddr': process.argv[2],
@@ -23,7 +23,7 @@ function callback(err, res) {
 
 	mem += process.memoryUsage().heapUsed/1024/1024;
 
-	console.log(res);
+	//console.log(res);
 
 	r++;
 	if (r === count) {

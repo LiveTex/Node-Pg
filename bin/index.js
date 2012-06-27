@@ -6,37 +6,47 @@ var util 		= require('util');
 var pg = {};
 pg.ResultTable;
 pg.Pool = function() {
+  this.__connectionInfo = "";
+  this.__breakCallback = null;
   this.__queryQueue = new pg.QueryQueue;
   this.__connections = []
 };
-pg.Pool.prototype["init"] = function(size, options, opt_breakCallback) {
-  var info = decodeURI(querystring.stringify(options, " "));
-  var self = this;
-  var breakHandler = function(connection, error) {
-    var index = self.__connections.indexOf(connection);
-    if(index !== -1) {
-      self.__connections[index] = new pg.Connection(self.__queryQueue, info, breakHandler)
-    }
-    if(opt_breakCallback !== undefined) {
-      opt_breakCallback(error)
-    }
-  };
-  while(this.__connections.length < size) {
-    this.__connections.push(new pg.Connection(this.__queryQueue, info, breakHandler))
-  }
+pg.Pool.prototype.init = function(options, opt_breakCallback) {
+  this.__connectionInfo = decodeURI(querystring.stringify(options, " "));
+  this.__breakCallback = opt_breakCallback || null
 };
-pg.Pool.prototype["exec"] = function(query, opt_callback) {
+pg.Pool.prototype.exec = function(query, opt_callback) {
   this.__queryQueue.push(new pg.Query(query, opt_callback));
   var i = 0, l = this.__connections.length;
+  var allBusy = true;
   while(i < l) {
-    this.__connections[i].process();
+    if(!this.__connections[i].isBusy()) {
+      this.__connections[i].process();
+      allBusy = false
+    }
     i++
   }
+  if(allBusy > 0) {
+    this.__spawnConnection()
+  }
 };
-pg.Pool.prototype["destroy"] = function() {
+pg.Pool.prototype.destroy = function() {
   while(this.__connections.length > 0) {
     this.__connections.shift().disconnect()
   }
+};
+pg.Pool.prototype.__spawnConnection = function() {
+  var self = this;
+  var connection = new pg.Connection(this.__queryQueue, this.__connectionInfo, function(connection, error) {
+    var index = self.__connections.indexOf(connection);
+    if(index !== -1) {
+      self.__connections.splice(index, 1)
+    }
+    if(self.__breakCallback !== null) {
+      self.__breakCallback(error)
+    }
+  });
+  this.__connections.push(connection)
 };
 pg.Query = function(command, opt_callback) {
   this.command = command;
@@ -50,14 +60,16 @@ pg.Query = function(command, opt_callback) {
 pg.QueryQueue = function() {
   this.__origin = new pg.Query("");
   this.__origin.prev = this.__origin;
-  this.__origin.next = this.__origin
+  this.__origin.next = this.__origin;
+  this.length = 0
 };
 pg.QueryQueue.prototype.push = function(query) {
   var tail = this.__origin.next;
   tail.prev = query;
   query.next = tail;
   this.__origin.next = query;
-  query.prev = this.__origin
+  query.prev = this.__origin;
+  this.length++
 };
 pg.QueryQueue.prototype.shift = function() {
   if(this.__origin.prev !== this.__origin) {
@@ -66,6 +78,7 @@ pg.QueryQueue.prototype.shift = function() {
     this.__origin.prev = head.prev;
     head.next = null;
     head.prev = null;
+    this.length--;
     return head
   }
   return null
@@ -98,11 +111,16 @@ pg.Connection = function(queryQueue, options, breakCallback) {
     }
   })
 };
+pg.Connection.prototype.isBusy = function() {
+  return this.__currentQuery !== null
+};
 pg.Connection.prototype.process = function() {
   if(this.__descriptor !== 0 && this.__currentQuery === null) {
     this.__currentQuery = this.__queryQueue.shift();
     if(this.__currentQuery !== null) {
       __pg.exec(this.__descriptor, this.__currentQuery.command)
+    }else {
+      this.disconnect()
     }
   }
 };
