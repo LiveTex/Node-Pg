@@ -17,6 +17,9 @@ pg.Pool.prototype.init = function(size, options, opt_breakCallback) {
   this.__breakCallback = opt_breakCallback || null;
   this.__maxSize = size
 };
+pg.Pool.prototype.getSize = function() {
+  return this.__connections.length
+};
 pg.Pool.prototype.exec = function(query, opt_callback) {
   this.__queryQueue.push(new pg.Query(query, opt_callback));
   var i = 0, l = this.__connections.length;
@@ -29,10 +32,6 @@ pg.Pool.prototype.exec = function(query, opt_callback) {
   }
 };
 pg.Pool.prototype.destroy = function() {
-  if(this.__processTimeout !== -1) {
-    clearTimeout(this.__processTimeout);
-    this.__processTimeout = -1
-  }
   while(this.__connections.length > 0) {
     this.__connections.shift().disconnect()
   }
@@ -86,13 +85,17 @@ pg.QueryQueue.prototype.shift = function() {
   return null
 };
 pg.Connection = function(queryQueue, options, breakCallback) {
+  var self = this;
   this.__queryQueue = queryQueue;
   this.__currentQuery = null;
-  var self = this;
+  this.__breakCallback = breakCallback;
+  this.__disconnectTimeout = -1;
   this.__descriptor = __pg.connect(options, function(broken, task, err, res) {
     if(broken) {
-      self.__descriptor = 0;
-      breakCallback(self, err)
+      if(self.__descriptor !== 0) {
+        self.__descriptor = 0;
+        self.__breakCallback(self, err)
+      }
     }
     if(task === 1) {
       var query = self.__currentQuery;
@@ -115,16 +118,33 @@ pg.Connection.prototype.process = function() {
   if(this.__descriptor !== 0 && this.__currentQuery === null) {
     this.__currentQuery = this.__queryQueue.shift();
     if(this.__currentQuery !== null) {
+      this.__stopDisconnectTimeout();
       __pg.exec(this.__descriptor, this.__currentQuery.command)
     }else {
-      this.disconnect()
+      this.__startDisconnectTimeout()
     }
   }
 };
 pg.Connection.prototype.disconnect = function() {
   if(this.__descriptor !== 0) {
     __pg.disconnect(this.__descriptor);
-    this.__descriptor = 0
+    this.__descriptor = 0;
+    this.__breakCallback(this, null)
+  }
+};
+pg.Connection.prototype.__startDisconnectTimeout = function() {
+  if(this.__disconnectTimeout === -1) {
+    var self = this;
+    this.__disconnectTimeout = setTimeout(function() {
+      self.disconnect();
+      self.__disconnectTimeout = -1
+    }, 1E3)
+  }
+};
+pg.Connection.prototype.__stopDisconnectTimeout = function() {
+  if(this.__disconnectTimeout !== -1) {
+    clearTimeout(this.__disconnectTimeout);
+    this.__disconnectTimeout = -1
   }
 };
 module.exports = new pg.Pool;

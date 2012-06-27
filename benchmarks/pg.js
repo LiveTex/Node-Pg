@@ -1,6 +1,6 @@
 var pg = require('../bin');
 
-pg.init(10, {
+pg.init(40, {
 	'user': 'relive',
 	'dbname': 'relive',
 	'hostaddr': process.argv[2],
@@ -17,12 +17,11 @@ var e = 0;
 var mem = 0;
 
 function callback(err, res) {
-	pg.exec(query, callback);
+	//pg.exec(query, callback);
 
 	if (err !== null) {
 		e++;
 	}
-
 
 	mem += process.memoryUsage().heapUsed/1024/1024;
 
@@ -32,7 +31,7 @@ function callback(err, res) {
 		process.exit();
 	}
 
-	//console.log(r);
+	//console.log(r, ':', pg.getSize());
 }
 
 
@@ -40,9 +39,9 @@ var t = Date.now();
 var i = 0;
 while (i < count) {
 
-	//setTimeout(function() {
+	setTimeout(function() {
 		pg.exec(query, callback);
-	//}, Math.random() * 10000);
+	}, Math.random() * 10 * Math.sqrt(i));
 
 
 

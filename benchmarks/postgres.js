@@ -35,7 +35,7 @@ var t = Date.now();
 var i = 0;
 while (i < count) {
 	setTimeout(function() {
-			pg.connect(options, function(err, client) {
+		pg.connect(options, function(err, client) {
 			if (client === null) {
 				e++;
 				r++;
@@ -43,7 +43,7 @@ while (i < count) {
 				client.query(query, callback);
 			}
 		});
-	}, Math.random() * 100);
+	}, Math.random() * 10 * Math.sqrt(i));
 
 	i++;
 }
