@@ -1,6 +1,6 @@
 var pg = require('../bin');
 
-pg.init({
+pg.init(10, {
 	'user': 'relive',
 	'dbname': 'relive',
 	'hostaddr': process.argv[2],
@@ -23,7 +23,7 @@ function callback(err, res) {
 
 	mem += process.memoryUsage().heapUsed/1024/1024;
 
-	//console.log(res);
+	console.log(res);
 
 	r++;
 	if (r === count) {
@@ -37,7 +37,7 @@ var i = 0;
 while (i < count) {
 	setTimeout(function() {
 		pg.exec(query, callback);
-    }, Math.random() * 100);
+    }, Math.random() * 5000);
 
 	i++;
 }
