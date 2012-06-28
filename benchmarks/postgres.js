@@ -13,9 +13,22 @@ var options = {
 
 var mem = 0;
 
+function exec() {
+	pg.connect(options, function(err, client) {
+		if (client === null) {
+			e++;
+			r++;
+		} else {
+			client.query(query, callback);
+		}
+	});
+}
+
 var r = 0;
 var e = 0;
 function callback(err, res) {
+	exec();
+
 	if (err !== null) {
 		e++;
 	}
@@ -31,19 +44,13 @@ function callback(err, res) {
 	}
 }
 
+
 var t = Date.now();
 var i = 0;
 while (i < count) {
 	setTimeout(function() {
-		pg.connect(options, function(err, client) {
-			if (client === null) {
-				e++;
-				r++;
-			} else {
-				client.query(query, callback);
-			}
-		});
-	}, Math.random() * 10 * Math.sqrt(i));
+		exec();
+	}, 100 * Math.sqrt(i));
 
 	i++;
 }

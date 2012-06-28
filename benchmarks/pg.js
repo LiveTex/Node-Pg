@@ -16,8 +16,12 @@ var e = 0;
 
 var mem = 0;
 
+function exec() {
+	pg.exec(query, callback);
+}
+
 function callback(err, res) {
-	//pg.exec(query, callback);
+	exec();
 
 	if (err !== null) {
 		e++;
@@ -40,10 +44,8 @@ var i = 0;
 while (i < count) {
 
 	setTimeout(function() {
-		pg.exec(query, callback);
-	}, Math.random() * 10 * Math.sqrt(i));
-
-
+		exec();
+	}, 100 * Math.sqrt(i));
 
 	i++;
 }

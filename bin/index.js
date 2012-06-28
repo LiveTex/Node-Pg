@@ -7,18 +7,13 @@ var pg = {};
 pg.ResultTable;
 pg.Pool = function() {
   this.__connectionInfo = "";
-  this.__breakCallback = null;
+  this.__maxSize = 0;
   this.__queryQueue = new pg.QueryQueue;
-  this.__connections = [];
-  this.__maxSize = 0
+  this.__connections = []
 };
-pg.Pool.prototype.init = function(size, options, opt_breakCallback) {
+pg.Pool.prototype.init = function(size, options) {
   this.__connectionInfo = decodeURI(querystring.stringify(options, " "));
-  this.__breakCallback = opt_breakCallback || null;
   this.__maxSize = size
-};
-pg.Pool.prototype.getSize = function() {
-  return this.__connections.length
 };
 pg.Pool.prototype.exec = function(query, opt_callback) {
   this.__queryQueue.push(new pg.Query(query, opt_callback));
@@ -43,8 +38,8 @@ pg.Pool.prototype.__spawnConnection = function() {
     if(index !== -1) {
       self.__connections.splice(index, 1)
     }
-    if(self.__breakCallback !== null) {
-      self.__breakCallback(error)
+    if(error !== null) {
+      console.error("[ERROR]: Postgres connection error:", error.message)
     }
   });
   this.__connections.push(connection)
