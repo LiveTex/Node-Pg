@@ -15,6 +15,12 @@ pg.Pool.prototype.init = function(size, options) {
   this.__connectionInfo = decodeURI(querystring.stringify(options, " "));
   this.__maxSize = size
 };
+pg.Pool.prototype.getPoolSize = function() {
+  return this.__connections.length
+};
+pg.Pool.prototype.getQueueSize = function() {
+  return this.__queryQueue.length
+};
 pg.Pool.prototype.exec = function(query, opt_callback) {
   this.__queryQueue.push(new pg.Query(query, opt_callback));
   var i = 0, l = this.__connections.length;
