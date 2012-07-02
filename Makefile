@@ -43,10 +43,10 @@ cpp : pg.node
 
 pg.node : pg.o \
 		  utils.o \
-		  actions.o \
-		  task.o \
-		  data_table.o \
-		  connection.o 
+		  pool.o \
+		  connection.o \
+		  query.o \
+		  data_table.o 
 	$(CC) -o $(BUILD_DIR)/$@ \
 	   	  $(addprefix $(BUILD_DIR)/, $^) \
 	   	  $(addprefix -l, $(LIBS)) $(LINK_FLAGS)

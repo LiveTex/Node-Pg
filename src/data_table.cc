@@ -16,8 +16,8 @@
 
 static v8::Persistent<v8::Value> true_value;
 static v8::Persistent<v8::Value> false_value;
-
 static v8::Persistent<v8::Value> empty_string_value;
+
 
 v8::Local<v8::Value> v8_get_true() {
 	true_value = v8::Persistent<v8::Value>::New(v8::True());

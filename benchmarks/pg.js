@@ -1,6 +1,6 @@
 var pg = require('../bin');
 
-pg.init(40, {
+pg.init(1, {
 	'user': 'relive',
 	'dbname': 'relive',
 	'hostaddr': process.argv[2],

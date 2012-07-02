@@ -35,10 +35,6 @@ task_t * task_alloc(task_process_handler process,
 
 
 void task_free(task_t * task) {
-	/*if (task->data != NULL) {
-		free(data);
-	}*/
-
-	//free(task->result);
-	//free(task);
+	free(task->result);
+	free(task);
 }

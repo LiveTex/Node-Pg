@@ -1,50 +1,94 @@
 /*
- * js_connection.cc
+ * connection.cc
  *
- *  Created on: May 29, 2012
+ *  Created on: Jul 2, 2012
  *      Author: kononencheg
  */
 
-
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <uv.h>
 
-#include "actions.h"
 #include "connection.h"
+#include "queue.h"
 #include "utils.h"
 
 
-void connection_work(uv_work_t * work) {
+void connection_break(connection_t * connection) {
+	// TODO: save last error
+	connection->is_broken = true;
+}
+
+
+void connection_connect_work(uv_work_t * work) {
 	connection_t * connection = (connection_t *) work->data;
 
-	task_t * task = connection->current_task;
-	if (task != NULL) {
-		task->process(task->data, connection, task->result);
+	connection->descriptor = PQconnectdb(connection->connection_info);
+
+	ConnStatusType status = PQstatus(connection->descriptor);
+	if (status != CONNECTION_OK) {
+		printf("[ERROR]: %s", PQerrorMessage(connection->descriptor));
+
+		connection_break(connection);
+	} else {
+		connection->is_connected = true;
 	}
 }
 
 
-void connection_handler(uv_work_t * work) {
-	v8::HandleScope scope;
-
+void connection_exec_work(uv_work_t * work) {
 	connection_t * connection = (connection_t *) work->data;
-	task_t * task = connection->current_task;
 
-	if (task != NULL) {
-		const unsigned argc = 4;
-		v8::Local<v8::Value> argv[argc];
+	ConnStatusType status = PQstatus(connection->descriptor);
+	if (status != CONNECTION_OK) {
+		printf("[ERROR]: %s", PQerrorMessage(connection->descriptor));
 
-		task->handle_result(task->result, connection, argc, argv);
+		connection_break(connection);
+	} else {
+		query_t * query = connection->current_query;
 
-		connection->callback->Call
-				(v8::Context::GetCurrent()->Global(), argc, argv);
+		if (query != NULL) {
+			PGresult * result = PQexec(connection->descriptor, query->request);
+
+			switch (PQresultStatus(result)) {
+				case PGRES_COMMAND_OK: {
+					break;
+				}
+
+				case PGRES_TUPLES_OK: {
+					query->result = data_table_alloc
+							(PQntuples(result), PQnfields(result));
+
+					data_table_populate(query->result, result);
+
+					break;
+				}
+
+				default: {
+					query->error = copy_string(PQresultErrorMessage(result));
+
+					break;
+				}
+			}
+
+			PQclear(result);
+
+			pool_apply(connection->pool, query);
+		}
+
+		connection->current_query = NULL;
 	}
+}
 
-	task_free(connection->current_task);
-	connection->current_task = NULL;
+
+void connection_work_handler(uv_work_t * work) {
+	connection_t * connection = (connection_t *) work->data;
+
+	pool_flush(connection->pool);
 
 	if (connection->is_broken) {
+		queue_remove(connection);
 		connection_free(connection);
 	} else {
 		connection_process(connection);
@@ -54,89 +98,62 @@ void connection_handler(uv_work_t * work) {
 }
 
 
-connection_t * connection_alloc(v8::Local<v8::Function> callback) {
-	connection_t * connection =	(connection_t *) malloc(sizeof(connection_t));
+void connection_queue_work(connection_t * connection, uv_work_cb work) {
+	uv_work_t * work_item = (uv_work_t *) malloc(sizeof(uv_work_t));
+	work_item->data = connection;
+
+	uv_queue_work(uv_default_loop(), work_item, work, connection_work_handler);
+}
+
+
+connection_t * connection_alloc(char * connection_info, pool_t * pool) {
+
+	connection_t * connection = (connection_t *) malloc(sizeof(connection_t));
+	connection->is_broken = false;
+	connection->is_connected = false;
+
+	connection->connection_info = connection_info;
+
+	connection->pool = pool;
+
+	connection->current_query = NULL;
 
 	connection->descriptor = NULL;
-	connection->current_task = NULL;
 
-	connection->task_queue_origin = (task_t *) malloc(sizeof(task_t));
-	connection->task_queue_origin->next = connection->task_queue_origin;
-	connection->task_queue_origin->prev = connection->task_queue_origin;
-
-	connection->is_broken = false;
-
-	connection->callback = v8::Persistent<v8::Function>::New(callback);
+	connection->prev = NULL;
+	connection->next = NULL;
 
 	return connection;
 }
 
 
+void connection_init(connection_t * connection) {
+	connection_queue_work(connection, connection_connect_work);
+}
+
+
 void connection_process(connection_t * connection) {
-	if (connection->current_task == NULL) {
-		connection->current_task = connection_shift_task(connection);
+	if (connection->current_query == NULL && connection->is_connected) {
+		query_t * query;
 
-		if (connection->current_task != NULL) {
-			uv_work_t * work = (uv_work_t *) malloc(sizeof * work);
-			work->data = connection;
+		queue_shift(connection->pool->exec_query_queue, query);
 
-			// ASYNC
-			uv_queue_work
-				(uv_default_loop(), work, connection_work, connection_handler);
-
-			// SYNC
-			/*
-			connection_work(work);
-			connection_handler(work);
-			*/
+		if (query != NULL) {
+			connection->current_query = query;
+			connection_queue_work(connection, connection_exec_work);
 		}
 	}
 }
 
 
-void connection_break(connection_t * connection) {
-	PQfinish(connection->descriptor);
-	connection->is_broken = true;
-}
-
-
-void connection_push_task(connection_t * connection, task_t * task) {
-	task_t * tail = connection->task_queue_origin->next;
-
-	tail->prev = task;
-	task->next = tail;
-
-	connection->task_queue_origin->next = task;
-	task->prev = connection->task_queue_origin;
-}
-
-
-task_t * connection_shift_task(connection_t * connection) {
-	if (connection->task_queue_origin->prev != connection->task_queue_origin) {
-		task_t * head = connection->task_queue_origin->prev;
-
-		head->prev->next = connection->task_queue_origin;
-		connection->task_queue_origin->prev = head->prev;
-
-		head->next = NULL;
-		head->prev = NULL;
-
-		return head;
-	}
-
-	return NULL;
-}
-
-
 void connection_free(connection_t * connection) {
-	task_t * task = connection_shift_task(connection);
-	while (task != NULL) {
-		task_free(task);
-		task = connection_shift_task(connection);
+	if (connection->descriptor != NULL) {
+		PQfinish(connection->descriptor);
 	}
 
-	connection->callback.Dispose();
+	if (connection->current_query != NULL) {
+		query_free(connection->current_query);
+	}
 
-	free(connection->task_queue_origin);
 	free(connection);
 }

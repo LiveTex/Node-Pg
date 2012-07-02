@@ -8,6 +8,8 @@
 #ifndef DATA_TABLE_H_
 #define DATA_TABLE_H_
 
+#include <v8.h>
+
 #include <libpq-fe.h>
 
 

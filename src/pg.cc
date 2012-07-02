@@ -10,13 +10,13 @@
 #include <libpq-fe.h>
 
 
-#include "actions.h"
+#include "pool.h"
+#include "query.h"
 #include "connection.h"
 #include "utils.h"
-#include "task.h"
 
 #include <signal.h>
-
+/*
 
 v8::Handle<v8::Value> pg_connect(const v8::Arguments &args) {
     v8::HandleScope scope;
@@ -97,10 +97,10 @@ v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
 
     return scope.Close(v8::Undefined());
 }
-
+*/
 
 void init (v8::Handle<v8::Object> target) {
-    v8::HandleScope scope;
+    /*v8::HandleScope scope;
 
     target->Set(v8::String::New("connect"),
     			v8::FunctionTemplate::New(pg_connect)->GetFunction());
@@ -109,7 +109,15 @@ void init (v8::Handle<v8::Object> target) {
     			v8::FunctionTemplate::New(pg_exec)->GetFunction());
 
     target->Set(v8::String::New("disconnect"),
-    			v8::FunctionTemplate::New(pg_disconnect)->GetFunction());
+    			v8::FunctionTemplate::New(pg_disconnect)->GetFunction());*/
+
+	pool_t * pool = pool_alloc(40, copy_string("user=relive dbname=relive hostaddr=127.0.0.1 port=6432"));
+
+	int i = 500000;
+	while (i > 0) {
+		pool_exec(pool, query_alloc("SELECT 1"));
+		i--;
+	}
 }
 
 

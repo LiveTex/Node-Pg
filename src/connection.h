@@ -9,53 +9,37 @@
 #define CONNECTION_H_
 
 
-#include <v8.h>
-
 #include <libpq-fe.h>
 
-#include "task.h"
+#include <uv.h>
 
-
-enum connection_status {
-	CONNECTION_BUSY = 0,
-	CONNECTION_FREE,
-	CONNECTION_BROKEN,
-	CONNECTION_LOADED
-};
+#include "query.h"
+#include "pool.h"
 
 
 typedef struct connection_ {
+	char * connection_info;
+
 	PGconn * descriptor;
 
+	struct connection_ * next;
+	struct connection_ * prev;
+
 	bool is_broken;
+	bool is_connected;
 
-	struct task_ * current_task;
-	struct task_ * task_queue_origin;
+	struct pool_ * pool;
 
-	v8::Persistent<v8::Function> callback;
+	query_t * current_query;
+
 } connection_t;
 
 
-connection_t * connection_alloc(v8::Local<v8::Function> callback);
+connection_t * connection_alloc(char * connection_info, struct pool_ * pool);
 
+void connection_init(connection_t * connection);
 
 void connection_process(connection_t * connection);
-
-
-void connection_break(connection_t * connection);
-
-
-void connection_push_task(connection_t * connection, struct task_ * task);
-
-
-struct task_ * connection_shift_task(connection_t * connection);
-
-
-bool connection_is_empty(connection_t * connection);
-
-
-void connection_callback(connection_t * connection, struct task_result_ * result);
-
 
 void connection_free(connection_t * connection);
 
