@@ -8,10 +8,13 @@
 #ifndef QUERY_H_
 #define QUERY_H_
 
+#include <v8.h>
+
 #include "data_table.h"
 
+
 typedef struct query_ {
-	size_t id;
+	v8::Persistent<v8::Function> callback;
 
 	struct query_ * next;
 	struct query_ * prev;
@@ -24,7 +27,9 @@ typedef struct query_ {
 } query_t;
 
 
-query_t * query_alloc(const char * request);
+query_t * query_alloc(v8::Local<v8::Function> callback, const char * request);
+
+void query_apply(query_t * query);
 
 void query_free(query_t * query);
 

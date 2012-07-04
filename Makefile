@@ -8,10 +8,10 @@ JSC = java -jar utils/compiler.jar \
 
 EXTERNS = node-externs.js pg-externs.js
 
-CC = clang 
+CC = gcc 
 
-CFLAGS = -ggdb -fno-inline -O3 -Wall -fPIC -DPIC -pthread
-LINK_FLAGS = -shared -pthread
+CFLAGS = -fno-inline -O3 -Wall -fPIC -DPIC -pthread
+LINK_FLAGS = -shared -pthread 
 
 LIBS = pq v8
 
@@ -69,9 +69,6 @@ js : index.js
 
 index.js : lib/pg/pg.js \
 		   lib/pg/pool.js \
-		   lib/pg/query.js \
-		   lib/pg/query-queue.js \
-		   lib/pg/connection.js \
 		   lib/exports.js
 	$(JSC) $(addprefix --js , $^) \
 		   $(addprefix --externs lib/, $(EXTERNS)) \

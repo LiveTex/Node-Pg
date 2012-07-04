@@ -8,33 +8,38 @@
 #ifndef POOL_H_
 #define POOL_H_
 
+
+#include <v8.h>
+
 #include "query.h"
 #include "connection.h"
+
 
 typedef struct pool_ {
 	char * connection_info;
 
 	size_t max_size;
-	size_t size;
 
-	size_t result_length;
-
-	query_t * exec_query_queue;
-	query_t * result_query_queue;
-
-	uv_mutex_t apply_lock;
+	query_t * query_queue;
 
 	struct connection_ * connection_queue;
+
+	v8::Persistent<v8::Function> error_callback;
 } pool_t;
 
 
-pool_t * pool_alloc(size_t max_size, char * connection_info);
+pool_t * pool_alloc();
+
+void pool_init(pool_t * pool, size_t max_size, const char * connection_info,
+			   v8::Local<v8::Function> error_callback);
 
 void pool_exec(pool_t * pool, query_t * query);
 
-void pool_apply(pool_t * pool, query_t * query);
+void pool_handle_error(pool_t * pool, char * error);
 
-void pool_flush(pool_t * pool);
+void pool_process(pool_t * pool);
+
+void pool_destroy(pool_t * pool);
 
 void pool_free(pool_t * pool);
 

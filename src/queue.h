@@ -34,11 +34,11 @@
 
 
 // target -> origin
-#define queue_push queue_add_before
+#define queue_push queue_add_after
 
 
 // target -> origin
-#define queue_unshift queue_add_after
+#define queue_unshift queue_add_before
 
 
 #define queue_remove(item) \
@@ -66,7 +66,7 @@
 
 #define queue_for(origin, item) \
 	for ((item) = (origin)->prev; \
-		 (item)->prev != (origin); \
+		 (item) != (origin); \
 		 (item) = (item)->prev)
 
 

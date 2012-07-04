@@ -16,108 +16,77 @@
 #include "utils.h"
 
 #include <signal.h>
-/*
 
-v8::Handle<v8::Value> pg_connect(const v8::Arguments &args) {
+
+pool_t * pool;
+
+
+v8::Handle<v8::Value> pg_init(const v8::Arguments &args) {
     v8::HandleScope scope;
 
     if (args.Length() < 1) {
-		return throw_type_error
-			("First argument must be connection options string!");
+		return throw_type_error("First argument must be max pool size!");
 	}
 
-    if (args.Length() < 2 && !args[1]->IsFunction()) {
-		return throw_type_error
-			("Second argument must be callback function!");
+    if (args.Length() < 2) {
+		return throw_type_error("Second argument must be connection string!");
 	}
 
-    connection_t * connection =
-		connection_alloc(v8::Local<v8::Function>::Cast(args[1]));
-
-    task_t * task = task_alloc(process_connection, handle_connection_result);
-
-	v8::String::Utf8Value str(args[0]->ToString());
-    task->data = copy_string(*str);
-
-
-    connection_push_task(connection, task);
-	connection_process(connection);
-
-    return scope.Close(v8::External::Wrap(connection));
-}
-
-
-v8::Handle<v8::Value> pg_disconnect(const v8::Arguments &args) {
-    v8::HandleScope scope;
-
-    if (args.Length() < 1) {
-		return throw_type_error("First argument must be connection!");
+    if (args.Length() < 3 && !args[2]->IsFunction()) {
+		return throw_type_error("Third argument must be error callback!");
 	}
 
-    connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
+	v8::String::Utf8Value str(args[1]->ToString());
 
-    if (connection == NULL) {
-    	return throw_error("Invalid connection!");
-    }
-
-	task_t * task =
-		task_alloc(process_disconnection, handle_disconnection_result);
-
-	connection_push_task(connection, task);
-	connection_process(connection);
+	pool_init(pool, args[0]->ToInteger()->Int32Value(), *str,
+			  v8::Local<v8::Function>::Cast(args[2]));
 
     return scope.Close(v8::Undefined());
 }
-
 
 v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
     v8::HandleScope scope;
 
     if (args.Length() < 1) {
-		return throw_type_error("First argument must be connection!");
+		return throw_type_error("First argument must be query request!");
 	}
 
-    if (args.Length() < 2) {
-		return throw_type_error("Second argument must be query!");
+    if (args.Length() < 2 && !args[1]->IsFunction()) {
+		return throw_type_error("Second argument must be query callback!");
 	}
 
-    connection_t * connection = (connection_t *) v8::External::Unwrap(args[0]);
+	v8::String::Utf8Value str(args[0]->ToString());
 
-    if (connection == NULL) {
-    	return throw_error("Invalid connection!");
-    }
+    query_t * query = query_alloc(v8::Local<v8::Function>::Cast(args[1]), *str);
 
-	task_t * task = task_alloc(process_execution, handle_execution_result);
-
-	v8::String::Utf8Value str(args[1]->ToString());
-    task->data = copy_string(*str);
-
-	connection_push_task(connection, task);
-	connection_process(connection);
+    pool_exec(pool, query);
 
     return scope.Close(v8::Undefined());
 }
-*/
+
+
+v8::Handle<v8::Value> pg_destroy(const v8::Arguments &args) {
+    v8::HandleScope scope;
+
+    pool_destroy(pool);
+
+    return scope.Close(v8::Undefined());
+}
+
 
 void init (v8::Handle<v8::Object> target) {
-    /*v8::HandleScope scope;
+	pool = pool_alloc();
 
-    target->Set(v8::String::New("connect"),
-    			v8::FunctionTemplate::New(pg_connect)->GetFunction());
+	v8::HandleScope scope;
+
+    target->Set(v8::String::New("init"),
+    			v8::FunctionTemplate::New(pg_init)->GetFunction());
 
     target->Set(v8::String::New("exec"),
     			v8::FunctionTemplate::New(pg_exec)->GetFunction());
 
-    target->Set(v8::String::New("disconnect"),
-    			v8::FunctionTemplate::New(pg_disconnect)->GetFunction());*/
-
-	pool_t * pool = pool_alloc(40, copy_string("user=relive dbname=relive hostaddr=127.0.0.1 port=6432"));
-
-	int i = 500000;
-	while (i > 0) {
-		pool_exec(pool, query_alloc("SELECT 1"));
-		i--;
-	}
+    target->Set(v8::String::New("destroy"),
+    			v8::FunctionTemplate::New(pg_destroy)->GetFunction());
 }
 
 

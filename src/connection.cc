@@ -15,12 +15,6 @@
 #include "utils.h"
 
 
-void connection_break(connection_t * connection) {
-	// TODO: save last error
-	connection->is_broken = true;
-}
-
-
 void connection_connect_work(uv_work_t * work) {
 	connection_t * connection = (connection_t *) work->data;
 
@@ -28,11 +22,7 @@ void connection_connect_work(uv_work_t * work) {
 
 	ConnStatusType status = PQstatus(connection->descriptor);
 	if (status != CONNECTION_OK) {
-		printf("[ERROR]: %s", PQerrorMessage(connection->descriptor));
-
-		connection_break(connection);
-	} else {
-		connection->is_connected = true;
+		connection->error = copy_string(PQerrorMessage(connection->descriptor));
 	}
 }
 
@@ -42,9 +32,7 @@ void connection_exec_work(uv_work_t * work) {
 
 	ConnStatusType status = PQstatus(connection->descriptor);
 	if (status != CONNECTION_OK) {
-		printf("[ERROR]: %s", PQerrorMessage(connection->descriptor));
-
-		connection_break(connection);
+		connection->error = copy_string(PQerrorMessage(connection->descriptor));
 	} else {
 		query_t * query = connection->current_query;
 
@@ -73,23 +61,27 @@ void connection_exec_work(uv_work_t * work) {
 			}
 
 			PQclear(result);
-
-			pool_apply(connection->pool, query);
 		}
-
-		connection->current_query = NULL;
 	}
 }
 
 
 void connection_work_handler(uv_work_t * work) {
 	connection_t * connection = (connection_t *) work->data;
+	connection->activity_status = FREE;
 
-	pool_flush(connection->pool);
+	if (connection->error != NULL) {
+		pool_t * pool = connection->pool;
 
-	if (connection->is_broken) {
-		queue_remove(connection);
-		connection_free(connection);
+		if (connection->current_query != NULL) {
+			queue_unshift(pool->query_queue, connection->current_query);
+			connection->current_query = NULL;
+		}
+
+		pool_handle_error(pool, connection->error);
+		pool_process(pool);
+
+		connection_destroy(connection);
 	} else {
 		connection_process(connection);
 	}
@@ -102,17 +94,41 @@ void connection_queue_work(connection_t * connection, uv_work_cb work) {
 	uv_work_t * work_item = (uv_work_t *) malloc(sizeof(uv_work_t));
 	work_item->data = connection;
 
+	connection->activity_status = BUSY;
+
 	uv_queue_work(uv_default_loop(), work_item, work, connection_work_handler);
 }
 
 
+void connection_apply_query(connection_t * connection) {
+	if (connection->current_query != NULL) {
+		query_t * query = connection->current_query;
+		connection->current_query = NULL;
+
+		query_apply(query);
+		query_free(query);
+	}
+}
+
+
+void connection_fetch_query(connection_t * connection) {
+	if (connection->current_query == NULL && connection->status != DESTROYING) {
+		queue_shift(connection->pool->query_queue, connection->current_query);
+
+		if (connection->current_query != NULL) {
+			connection_queue_work(connection, connection_exec_work);
+		} else {
+			connection_destroy(connection);
+		}
+	}
+}
+
 connection_t * connection_alloc(char * connection_info, pool_t * pool) {
-
 	connection_t * connection = (connection_t *) malloc(sizeof(connection_t));
-	connection->is_broken = false;
-	connection->is_connected = false;
+	connection->status = NEW;
+	connection->activity_status = FREE;
 
-	connection->connection_info = connection_info;
+	connection->connection_info = copy_string(connection_info);
 
 	connection->pool = pool;
 
@@ -123,30 +139,62 @@ connection_t * connection_alloc(char * connection_info, pool_t * pool) {
 	connection->prev = NULL;
 	connection->next = NULL;
 
+	connection->error = NULL;
+
+	queue_push(pool->connection_queue, connection);
+
 	return connection;
 }
 
 
 void connection_init(connection_t * connection) {
+	connection->status = INITIALIZING;
 	connection_queue_work(connection, connection_connect_work);
+}
+
+void connection_destroy(connection_t * connection) {
+	connection->status = DESTROYING;
+	connection_process(connection);
 }
 
 
 void connection_process(connection_t * connection) {
-	if (connection->current_query == NULL && connection->is_connected) {
-		query_t * query;
+	if (connection->activity_status == FREE) {
+		switch (connection->status) {
+			case INITIALIZING: {
+				connection->status = ACTIVE;
+				connection_fetch_query(connection);
 
-		queue_shift(connection->pool->exec_query_queue, query);
+				break;
+			}
 
-		if (query != NULL) {
-			connection->current_query = query;
-			connection_queue_work(connection, connection_exec_work);
+			case ACTIVE: {
+				connection_apply_query(connection);
+				connection_fetch_query(connection);
+
+				break;
+			}
+
+			case DESTROYING: {
+				connection_apply_query(connection);
+				connection_free(connection);
+
+				break;
+			}
+
+			case NEW: {
+				break;
+			}
 		}
 	}
 }
 
 
 void connection_free(connection_t * connection) {
+	if (connection->prev != NULL) {
+		queue_remove(connection);
+	}
+
 	if (connection->descriptor != NULL) {
 		PQfinish(connection->descriptor);
 	}
@@ -155,5 +203,6 @@ void connection_free(connection_t * connection) {
 		query_free(connection->current_query);
 	}
 
+	free(connection->connection_info);
 	free(connection);
 }

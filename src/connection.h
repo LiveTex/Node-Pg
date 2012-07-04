@@ -17,20 +17,35 @@
 #include "pool.h"
 
 
+typedef enum {
+	NEW = 0,
+	INITIALIZING,
+	ACTIVE,
+	DESTROYING
+} entity_status_t;
+
+typedef enum {
+	BUSY = 0,
+	FREE
+} activity_status_t;
+
+
 typedef struct connection_ {
 	char * connection_info;
 
 	PGconn * descriptor;
 
+	struct pool_ * pool;
+
 	struct connection_ * next;
 	struct connection_ * prev;
 
-	bool is_broken;
-	bool is_connected;
+	struct query_ * current_query;
 
-	struct pool_ * pool;
+	entity_status_t status;
+	activity_status_t activity_status;
 
-	query_t * current_query;
+	char * error;
 
 } connection_t;
 
@@ -40,6 +55,8 @@ connection_t * connection_alloc(char * connection_info, struct pool_ * pool);
 void connection_init(connection_t * connection);
 
 void connection_process(connection_t * connection);
+
+void connection_destroy(connection_t * connection);
 
 void connection_free(connection_t * connection);
 
