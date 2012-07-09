@@ -100,17 +100,6 @@ void connection_queue_work(connection_t * connection, uv_work_cb work) {
 }
 
 
-void connection_apply_query(connection_t * connection) {
-	if (connection->current_query != NULL) {
-		query_t * query = connection->current_query;
-		connection->current_query = NULL;
-
-		query_apply(query);
-		query_free(query);
-	}
-}
-
-
 void connection_fetch_query(connection_t * connection) {
 	if (connection->current_query == NULL && connection->status != DESTROYING) {
 		queue_shift(connection->pool->query_queue, connection->current_query);
@@ -160,6 +149,9 @@ void connection_destroy(connection_t * connection) {
 
 void connection_process(connection_t * connection) {
 	if (connection->activity_status == FREE) {
+		query_t * query = connection->current_query;
+		connection->current_query = NULL;
+
 		switch (connection->status) {
 			case INITIALIZING: {
 				connection->status = ACTIVE;
@@ -169,14 +161,12 @@ void connection_process(connection_t * connection) {
 			}
 
 			case ACTIVE: {
-				connection_apply_query(connection);
 				connection_fetch_query(connection);
 
 				break;
 			}
 
 			case DESTROYING: {
-				connection_apply_query(connection);
 				connection_free(connection);
 
 				break;
@@ -185,6 +175,12 @@ void connection_process(connection_t * connection) {
 			case NEW: {
 				break;
 			}
+		}
+
+
+		if (query != NULL) {
+			query_apply(query);
+			query_free(query);
 		}
 	}
 }
