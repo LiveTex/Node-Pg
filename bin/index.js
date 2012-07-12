@@ -8,7 +8,7 @@ pg.ResultTable;
 pg.Pool = function() {
 };
 pg.Pool.prototype.init = function(size, options) {
-  __pg.init(20, querystring.stringify(options, " "), function(error) {
+  __pg.init(size, querystring.stringify(options, " "), function(error) {
     console.log(error)
   })
 };
