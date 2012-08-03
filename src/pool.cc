@@ -65,11 +65,15 @@ void pool_handle_error(pool_t * pool, char * error) {
 
 
 void pool_process(pool_t * pool) {
-	connection_t * connection = NULL;
 	size_t i = 0;
 
-	queue_for(pool->connection_queue, connection) {
+	connection_t * connection = pool->connection_queue->prev;
+	connection_t * prev = NULL;
+	while (connection != pool->connection_queue) {
+		prev = connection->prev;
 		connection_process(connection);
+
+		connection = prev;
 		i++;
 	}
 

@@ -68,7 +68,6 @@ void connection_exec_work(uv_work_t * work) {
 
 void connection_work_handler(uv_work_t * work) {
 	connection_t * connection = (connection_t *) work->data;
-	connection->activity_status = FREE;
 
 	if (connection->error != NULL) {
 		pool_t * pool = connection->pool;
@@ -82,9 +81,10 @@ void connection_work_handler(uv_work_t * work) {
 		pool_process(pool);
 
 		connection_destroy(connection);
-	} else {
-		connection_process(connection);
 	}
+
+	connection->activity_status = FREE;
+	connection_process(connection);
 
 	free(work);
 }
@@ -140,6 +140,7 @@ void connection_init(connection_t * connection) {
 	connection->status = INITIALIZING;
 	connection_queue_work(connection, connection_connect_work);
 }
+
 
 void connection_destroy(connection_t * connection) {
 	connection->status = DESTROYING;
