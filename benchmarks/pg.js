@@ -10,7 +10,6 @@ pg.init(20, {
 
 var count = parseInt(process.argv[3]);
 var query = process.argv[4]  || "SELECT 1";
-//var query = "UPDATE stat.work AS w SET period_tail=NOW(), period=NOW()-period_head, atime=NOW() WHERE w.period_tail IS NULL AND w.period_head IS NOT NULL";
 
 var r = 0;
 var e = 0;
@@ -29,8 +28,9 @@ function callback(err, res) {
 	}
 
 	mem += process.memoryUsage().heapUsed/1024/1024;
-    console.log(err, ':', res);
-	r++;
+  console.log(err, ':', res);
+
+  r++;
 	if (r === count) {
 		console.log('[NODE-PG] | R:', r, ' | E:', e, ' | T:', Date.now() - t, ' | M:', (Math.round(mem/r*10)/10));
 		process.exit();
