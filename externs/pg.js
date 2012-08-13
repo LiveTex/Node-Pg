@@ -16,7 +16,7 @@ pg.init = function(size, options) {};
 
 /**
  * @param {string} query
- * @param {function(Error, Array.<!Object.<string, string>>)} callback
+ * @param {function(Error, Array.<!Object.<string, (string|boolean|number|null)>>)} callback
  */
 pg.exec = function(query, callback) {};
 
