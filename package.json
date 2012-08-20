@@ -1,15 +1,5 @@
 {
-  "name": "Node-Postrgres",
-  "version": "0.0.1",
-  "description": "ERROR: No README.md file found!",
-  "main": "bin/index.js",
-  "bin": {
-    "Node-Postrgres": "index.js"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": "",
-  "author": "Sergey Kononenko",
-  "license": "BSD"
+    "name": "Node-Postgres",
+    "version": "0.0.1",
+    "main": "bin/index.js"
 }
