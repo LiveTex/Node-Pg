@@ -20,13 +20,23 @@ INCLUDE_DIRS = /usr/include/node /usr/include/postgresql
 
 VPATH = src
 
+MODULE_NAME ?= pg
+INSTALL_PREFIX ?= /usr/lib/
 
 #
 #	Global
 #
 
-
 all : cpp js
+
+
+install :
+	mkdir -p $(INSTALL_PREFIX)/node/$(MODULE_NAME)/;
+	cp $(BUILD_DIR)/pg.node $(INSTALL_PREFIX)/node/$(MODULE_NAME)/;
+	cp $(BUILD_DIR)/index.js $(INSTALL_PREFIX)/node/$(MODULE_NAME)/;
+
+uninstall :
+	rm -rf $(INSTALL_PREFIX)/node/$(MODULE_NAME);
 
 
 clean :

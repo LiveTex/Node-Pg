@@ -55,12 +55,12 @@ void pool_exec(pool_t * pool, query_t * query) {
 
 
 void pool_handle_error(pool_t * pool, char * error) {
-	const unsigned argc = 1;
-	v8::Handle<v8::Value> argv[argc];
+	v8::HandleScope scope;
+	v8::Handle<v8::Value> argv[1];
 
 	argv[0] = create_error(error);
 
-	pool->error_callback->Call(v8::Context::GetCurrent()->Global(), argc, argv);
+	pool->error_callback->Call(v8::Context::GetCurrent()->Global(), 1, argv);
 }
 
 
