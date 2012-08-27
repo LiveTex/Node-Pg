@@ -8,6 +8,13 @@ var pg = {};
 
 
 /**
+ * @const
+ * @type {string}
+ */
+pg.VERSION = '';
+
+
+/**
  * @param {number} size
  * @param {!Object} options
  */

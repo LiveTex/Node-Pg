@@ -30,10 +30,15 @@ INSTALL_PREFIX ?= /usr/lib/
 all : cpp js
 
 
+
 install :
-	mkdir -p $(INSTALL_PREFIX)/node/$(MODULE_NAME)/;
-	cp $(BUILD_DIR)/pg.node $(INSTALL_PREFIX)/node/$(MODULE_NAME)/;
-	cp $(BUILD_DIR)/index.js $(INSTALL_PREFIX)/node/$(MODULE_NAME)/;
+	mkdir -p $(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
+	mkdir -p $(INSTALL_PREFIX)/node/$(MODULE_NAME)/externs/;
+	cp package.json $(INSTALL_PREFIX)/node/$(MODULE_NAME)/;
+	cp bin/index.js $(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
+	cp bin/pg.node $(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
+	cp externs/pg.js $(INSTALL_PREFIX)/node/$(MODULE_NAME)/externs/;
+
 
 uninstall :
 	rm -rf $(INSTALL_PREFIX)/node/$(MODULE_NAME);
@@ -75,6 +80,8 @@ js : index.js
 	cat lib/requires.js > /tmp/out && \
 	cat $(addprefix $(BUILD_DIR)/, $^) >> /tmp/out && \
 	mv /tmp/out $(addprefix $(BUILD_DIR)/, $^)
+
+
 
 
 index.js : lib/pg/pg.js \

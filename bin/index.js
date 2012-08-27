@@ -4,6 +4,7 @@ var events 		= require('events');
 var querystring = require('querystring');
 var util 		= require('util');
 var pg = {};
+pg.VERSION = "0.0.1";
 pg.ResultTable;
 pg.Pool = function() {
 };

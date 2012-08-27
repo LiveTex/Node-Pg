@@ -1,5 +1,2 @@
-{
-    "name": "Node-Postgres",
-    "version": "0.0.1",
-    "main": "bin/index.js"
-}
+{ "name": "Node-Postgres",
+  "main": "bin/index.js" }
