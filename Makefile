@@ -1,13 +1,4 @@
 
-# ADVANCED_OPTIMIZATIONS WHITESPACE_ONLY
-
-JSC = java -jar utils/compiler.jar \
-		   --warning_level VERBOSE \
-		   --compilation_level WHITESPACE_ONLY \
-		   --formatting PRETTY_PRINT --debug
-
-EXTERNS = node-externs.js pg-externs.js
-
 CC = gcc 
 
 CFLAGS = -fno-inline -O3 -Wall -fPIC -DPIC -pthread
@@ -16,9 +7,15 @@ LINK_FLAGS = -shared -pthread
 LIBS = pq v8
 
 BUILD_DIR = bin
-INCLUDE_DIRS = /usr/include/node /usr/include/postgresql 
+INCLUDE_DIRS = /usr/include/node /usr/include/postgresql
 
 VPATH = src
+
+JS_ROOT_DIR  = ./
+JS_DEPS_DIRS =
+JS_CUSTOM_EXTERNS = lib/externs.js
+
+include build/js-variables.mk
 
 MODULE_NAME ?= pg
 INSTALL_PREFIX ?= /usr/lib/
@@ -27,8 +24,12 @@ INSTALL_PREFIX ?= /usr/lib/
 #	Global
 #
 
-all : cpp js
 
+all : pg.node js-export
+
+
+clean : js-clean
+	rm -rf $(BUILD_DIR)/*
 
 
 install :
@@ -44,18 +45,6 @@ uninstall :
 	rm -rf $(INSTALL_PREFIX)/node/$(MODULE_NAME);
 
 
-clean :
-	rm -rf $(BUILD_DIR)/*
-
-
-#
-#	C++
-#
-
-
-cpp : pg.node
-
-
 pg.node : pg.o \
 		  utils.o \
 		  pool.o \
@@ -66,29 +55,10 @@ pg.node : pg.o \
 	   	  $(addprefix $(BUILD_DIR)/, $^) \
 	   	  $(addprefix -l, $(LIBS)) $(LINK_FLAGS)
 
-
 %.o : %.cc
 	$(CC) $(CFLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -o $(BUILD_DIR)/$@  -c $<
 
 
-#
-#	JavaScript
-#
+include build/js-rules.mk
 
 
-js : index.js
-	cat lib/requires.js > /tmp/out && \
-	cat $(addprefix $(BUILD_DIR)/, $^) >> /tmp/out && \
-	mv /tmp/out $(addprefix $(BUILD_DIR)/, $^)
-
-
-
-
-index.js : lib/pg/pg.js \
-		   lib/pg/pool.js \
-		   lib/exports.js
-	$(JSC) $(addprefix --js , $^) \
-		   $(addprefix --externs lib/, $(EXTERNS)) \
-		   $(addprefix --js_output_file $(BUILD_DIR)/, $@)
-
-	
