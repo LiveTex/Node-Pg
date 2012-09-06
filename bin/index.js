@@ -8,6 +8,7 @@ pg.VERSION = "0.0.2";
 pg.ResultTable;
 pg.Pool = function() {
   var self = this;
+  this.VERSION = pg.VERSION;
   this.__jointQueries = [];
   this.__jointCallbacks = [];
   this.__isDeffered = false;
