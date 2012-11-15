@@ -4,10 +4,10 @@ CC = gcc
 CFLAGS = -fno-inline -O3 -Wall -fPIC -DPIC -pthread
 LINK_FLAGS = -shared -pthread 
 
-LIBS = pq v8
+LIBS = pq v8 jemalloc
 
 BUILD_DIR = bin
-INCLUDE_DIRS = /usr/include/node /usr/include/postgresql
+INCLUDE_DIRS = /usr/include/node /usr/include/postgresql /usr/include/jemalloc
 
 VPATH = src
 
@@ -49,8 +49,7 @@ pg.node : pg.o \
 		  utils.o \
 		  pool.o \
 		  connection.o \
-		  query.o \
-		  data_table.o 
+		  query.o
 	$(CC) -o $(BUILD_DIR)/$@ \
 	   	  $(addprefix $(BUILD_DIR)/, $^) \
 	   	  $(addprefix -l, $(LIBS)) $(LINK_FLAGS)

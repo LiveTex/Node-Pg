@@ -9,8 +9,7 @@
 #define QUERY_H_
 
 #include <v8.h>
-
-#include "data_table.h"
+#include <libpq-fe.h>
 
 
 typedef struct query_ {
@@ -22,7 +21,7 @@ typedef struct query_ {
 	char * request;
 	char * error;
 
-	data_table_t * result;
+	PGresult * result;
 
 } query_t;
 

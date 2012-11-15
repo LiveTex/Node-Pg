@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <typeinfo>
@@ -8,6 +7,7 @@
 #include <uv.h>
 
 #include <libpq-fe.h>
+#include <jemalloc/jemalloc.h>
 
 
 #include "pool.h"

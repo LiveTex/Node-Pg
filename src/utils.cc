@@ -5,8 +5,8 @@
  *      Author: kononencheg
  */
 
-#include <stdlib.h>
 #include <string.h>
+#include <jemalloc/jemalloc.h>
 
 #include "utils.h"
 
@@ -65,3 +65,68 @@ char * copy_string(const char * source, size_t length) {
 	return string;
 }
 
+
+v8::Local<v8::Value> get_field(const char * data) {
+	return v8::String::NewSymbol(data);
+}
+
+
+v8::Local<v8::Value> get_value(const char * data, int length, Oid type_id) {
+	// boolean
+	if (type_id == 16) {
+		if (data[0] == 't') {
+			return v8::Local<v8::Value>::New(v8::True());
+		} else if (data[0] == 'f') {
+			return v8::Local<v8::Value>::New(v8::False());
+		}
+	}
+
+	v8::Local<v8::Value> value = v8::String::New(data, length);
+
+	//printf("> %d\n", type_id);
+
+	switch (type_id) {
+		case 20: // int8
+		case 21: // int2
+		case 23: // int4
+		case 26: // oid
+		case 28: // xid
+		case 1114: // timestamp
+			return value->ToInteger();
+
+		case 700: // float4
+		case 701: // float8
+		case 1700: // numeric
+			return value->ToNumber();
+	}
+
+	return value;
+}
+
+
+v8::Local<v8::Array> get_array(PGresult * result) {
+	int rows_count = PQntuples(result);
+	int columns_count =	PQnfields(result);
+
+	v8::Local<v8::Array> array = v8::Array::New(rows_count);
+
+	for (int i = 0; i < rows_count; i++) {
+		v8::Local<v8::Object> record = v8::Object::New();
+
+		for (int j = 0; j < columns_count; j++) {
+			if (PQgetisnull(result, i, j)) {
+				record->Set(get_field(PQfname(result, j)), v8::Null());
+			} else {
+				record->Set(get_field(PQfname(result, j)),
+							get_value(PQgetvalue(result, i , j),
+									  PQgetlength(result, i, j),
+									  PQftype(result, j)));
+			}
+
+		}
+
+		array->Set(i, record);
+	}
+
+	return array;
+}

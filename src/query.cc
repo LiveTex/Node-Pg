@@ -6,7 +6,7 @@
  */
 
 
-#include <stdlib.h>
+#include <jemalloc/jemalloc.h>
 
 #include "query.h"
 #include "utils.h"
@@ -40,7 +40,7 @@ void query_apply(query_t * query) {
 	if (query->result == NULL) {
 		argv[1] = v8::Null();
 	} else {
-		argv[1] = data_table_get_array(query->result);
+		argv[1] = get_array(query->result);
 	}
 
 	query->callback->Call(v8::Context::GetCurrent()->Global(), argc, argv);
@@ -55,7 +55,7 @@ void query_free(query_t * query) {
 	}
 
 	if (query->result != NULL) {
-		data_table_free(query->result);
+		PQclear(query->result);
 	}
 
 	free(query->request);

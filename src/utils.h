@@ -25,4 +25,6 @@ v8::Local<v8::Value> create_error(v8::Local<v8::String> msg);
 char * copy_string(const char * source);
 char * copy_string(const char * source, size_t length);
 
+v8::Local<v8::Array> get_array(PGresult * result);
+
 #endif /* UTILS_H_ */

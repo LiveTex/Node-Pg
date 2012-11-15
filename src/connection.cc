@@ -6,9 +6,9 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
-
 #include <uv.h>
+
+#include <jemalloc/jemalloc.h>
 
 #include "connection.h"
 #include "queue.h"
@@ -41,26 +41,21 @@ void connection_exec_work(uv_work_t * work) {
 
 			switch (PQresultStatus(result)) {
 				case PGRES_COMMAND_OK: {
+					PQclear(result);
 					break;
 				}
 
 				case PGRES_TUPLES_OK: {
-					query->result = data_table_alloc
-							(PQntuples(result), PQnfields(result));
-
-					data_table_populate(query->result, result);
-
+					query->result = result;
 					break;
 				}
 
 				default: {
 					query->error = copy_string(PQresultErrorMessage(result));
-
+					PQclear(result);
 					break;
 				}
 			}
-
-			PQclear(result);
 		}
 	}
 }
