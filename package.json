@@ -1,2 +1,4 @@
 { "name": "Node-Postgres",
+  "package_name": "liblivetex-node-pg",
+  "version": "0.1.0",
   "main": "bin/index.js" }
