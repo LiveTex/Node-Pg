@@ -13,11 +13,12 @@ INCLUDE_DIRS = /usr/include/node /usr/include/postgresql /usr/include/jemalloc
 
 VPATH = src
 
+JS_BUILD_HOME ?= /usr/lib/js-build-tools
 JS_ROOT_DIR  = ./
-JS_DEPS_DIRS =
+JS_DEPS_DIRS = /usr/lib/node/qs/
 JS_CUSTOM_EXTERNS = lib/externs.js
 
-include build/js-variables.mk
+include $(JS_BUILD_HOME)/js-variables.mk
 
 MODULE_NAME ?= pg
 INSTALL_PREFIX ?= /usr/lib/
@@ -27,7 +28,7 @@ INSTALL_PREFIX ?= /usr/lib/
 #
 
 
-all : pg.node js-export
+all : pg.node js-externs js-export
 
 
 clean : js-clean
@@ -53,13 +54,12 @@ pg.node : pg.o \
 		  connection.o \
 		  query.o
 	$(CC) -o $(BUILD_DIR)/$@ \
-	   	  $(addprefix $(BUILD_DIR)/, $^) \
+	   	  $(addprefix $(BUILD_DIR)/, $^) -L/opt/postgres/lib \
 	   	  $(addprefix -l, $(LIBS)) $(LINK_FLAGS)
 
 %.o : %.cc
 	$(CC) $(CFLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -o $(BUILD_DIR)/$@  -c $<
 
 
-include build/js-rules.mk
-
+include $(JS_BUILD_HOME)/js-rules.mk
 

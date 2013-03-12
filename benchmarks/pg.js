@@ -1,15 +1,15 @@
 var pg = require('../bin');
 
 pg.init(20, {
-  'user': 'relive',
-  'dbname': 'relive',
+  'user': 'postgres',
+  'dbname': 'postgres',
   'hostaddr': process.argv[2],
-  'password': 'fyfvdcthfd5',
-  'port': 6432
+  'password': '123',
+  'port': 5432
 });
 
 var count = parseInt(process.argv[3]);
-var query = process.argv[4]  || "SELECT * FROM main.member LIMIT 500";
+var query = process.argv[4]  || "SELECT 1";
 
 var r = 0;
 var e = 0;
@@ -24,6 +24,8 @@ function callback(err, res) {
   if (err !== null) {
     e++;
   }
+
+    console.log(res);
 
   mem += process.memoryUsage().heapUsed/1024/1024;
 
@@ -43,7 +45,7 @@ while (i < count) {
   i++;
 }
 
-setInterval(function() {
+/*setInterval(function() {
   console.log('[NODE-PG] | M:', (Math.round(process.memoryUsage().heapUsed/1024/1024*10)/10));
-}, 1000);
+}, 1000);*/
 
