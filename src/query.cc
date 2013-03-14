@@ -32,13 +32,13 @@ void query_apply(query_t * query) {
 	v8::Handle<v8::Value> argv[argc];
 
 	if (query->error == NULL) {
-		argv[0] = v8::Null();
+		argv[0] = v8::String::New("");
 	} else {
-		argv[0] = create_error(query->error);
+		argv[0] = v8::String::New(query->error);
 	}
 
 	if (query->result == NULL) {
-		argv[1] = v8::Null();
+		argv[1] = v8::Array::New(0);
 	} else {
 		argv[1] = get_array(query->result);
 	}

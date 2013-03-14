@@ -2,7 +2,7 @@ var pg = require('../bin');
 
 pg.init(20, {
   'user': 'postgres',
-  'dbname': 'postgres',
+  'dbname': 'beep',
   'hostaddr': process.argv[2],
   'password': '123',
   'port': 5432
@@ -17,15 +17,12 @@ var e = 0;
 var mem = 0;
 
 function exec() {
-  pg.exec(query, callback);
+  pg.exec(query, callback, callback);
 }
 
 function callback(err, res) {
-  if (err !== null) {
-    e++;
-  }
 
-    console.log(res);
+    console.log(arguments);
 
   mem += process.memoryUsage().heapUsed/1024/1024;
 

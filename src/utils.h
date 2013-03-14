@@ -19,9 +19,6 @@ v8::Handle<v8::Value> throw_error(v8::Local<v8::String> msg);
 v8::Handle<v8::Value> throw_type_error(const char * msg);
 v8::Handle<v8::Value> throw_type_error(v8::Local<v8::String> msg);
 
-v8::Local<v8::Value> create_error(const char * msg);
-v8::Local<v8::Value> create_error(v8::Local<v8::String> msg);
-
 char * copy_string(const char * source);
 char * copy_string(const char * source, size_t length);
 

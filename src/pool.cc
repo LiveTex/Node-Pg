@@ -58,7 +58,7 @@ void pool_handle_error(pool_t * pool, char * error) {
 	v8::HandleScope scope;
 	v8::Handle<v8::Value> argv[1];
 
-	argv[0] = create_error(error);
+	argv[0] = v8::String::New(error);
 
 	pool->error_callback->Call(v8::Context::GetCurrent()->Global(), 1, argv);
 }

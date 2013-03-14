@@ -14,7 +14,7 @@ var pg = {};
 pg.VERSION = '0.1.0';
 
 /**
- * @typedef {Array.<!Object.<string, string>>}
+ * @typedef {Array.<!Object.<string, (number|string|boolean|null)>>}
  */
 pg.ResultTable;
 
@@ -45,16 +45,18 @@ pg.init = function(size, options) {};
 
 /**
  * @param {string} query Запрос.
- * @param {function(Error, pg.ResultTable)} callback Обработчик результата.
+ * @param {function(!pg.ResultTable)} complete Обработчик результата.
+ * @param {function(string, number=)} cancel Обработчик ошибки.
  */
-pg.exec = function(query, callback) {};
+pg.exec = function(query, complete, cancel) {};
 
 /**
  * @param {string} query Запрос.
  * @param {!Object} params Параметры запроса.
- * @param {function(Error, pg.ResultTable)} callback Обработчик результата.
+ * @param {function(!pg.ResultTable)} complete Обработчик результата.
+ * @param {function(string, number=)} cancel Обработчик ошибки.
  */
-pg.execPrepared = function(query, params, callback) {};
+pg.execPrepared = function(query, params, complete, cancel) {};
 
 /**
  * Разрушение пула.
