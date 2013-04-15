@@ -40,6 +40,11 @@ clean : js-clean
 	rm -rf $(BUILD_DIR)/*
 
 
+install-dev: install
+
+install-deploy: install
+
+
 install :
 	mkdir -p $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
 	mkdir -p $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/externs/;
