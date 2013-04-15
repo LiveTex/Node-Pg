@@ -33,7 +33,7 @@ INSTALL_PREFIX ?= /usr/lib/
 all : pg.node js-externs js-export
 
 
-build: js-externs js-export
+build: pg.node js-externs js-export
 
 
 clean : js-clean
@@ -43,7 +43,6 @@ clean : js-clean
 install-dev: install
 
 install-deploy: install
-
 
 install :
 	mkdir -p $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
