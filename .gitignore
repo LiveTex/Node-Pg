@@ -1,5 +1,0 @@
-.*
-.*/
-bin/*.o
-bin/*.node
-bin/index.js
