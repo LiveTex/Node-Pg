@@ -33,6 +33,9 @@ INSTALL_PREFIX ?= /usr/lib/
 all : pg.node js-externs js-export
 
 
+build: js-externs js-export
+
+
 clean : js-clean
 	rm -rf $(BUILD_DIR)/*
 
