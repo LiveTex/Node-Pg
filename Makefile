@@ -18,6 +18,8 @@ JS_ROOT_DIR  = ./
 JS_DEPS_DIRS = /usr/lib/node/qs/
 JS_CUSTOM_EXTERNS = lib/externs.js
 
+JS_BUILD_HOME=/usr/lib/js-build-tools
+
 include $(JS_BUILD_HOME)/js-variables.mk
 
 MODULE_NAME ?= pg
