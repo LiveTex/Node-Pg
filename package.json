@@ -5,7 +5,7 @@
 
   "scripts": {
     "prepublish": "make clean && make check && make",
-    "preinstall": "apt-get install libpq-dev libjemalloc-dev libv8-dev",
+    "preinstall": "sudo apt-get install libpq-dev libjemalloc-dev libv8-dev",
     "install": "make native"
   },
 
