@@ -1,0 +1,5 @@
+bin/*.o
+bin/*.node
+.idea
+node_modules
+

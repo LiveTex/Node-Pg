@@ -1,4 +1,15 @@
-{ "name": "Node-Postgres",
-  "package_name": "liblivetex-node-pg",
+{
+  "name": "node-pg",
+  "main": "bin/index.js",
   "version": "0.1.0",
-  "main": "bin/index.js" }
+
+  "scripts": {
+    "prepublish": "make clean && make check && make",
+    "preinstall": "apt-get install libpq-dev libjemalloc-dev libv8-dev",
+    "install": "make native"
+  },
+
+  "dependencies": {
+    "node-util": "*"
+  }
+}

@@ -1,6 +1,4 @@
 
-DESTDIR = 
-
 CC = gcc 
 
 CFLAGS = -fno-inline -O3 -Wall -fPIC -DPIC -pthread
@@ -8,7 +6,6 @@ LINK_FLAGS = -shared -pthread
 
 LIBS = pq v8 jemalloc
 
-BUILD_DIR = bin
 INCLUDE_DIRS = /usr/include/node /usr/include/postgresql /usr/include/jemalloc
 
 VPATH = src
@@ -30,47 +27,28 @@ INSTALL_PREFIX ?= /usr/lib/
 #
 
 
-all : pg.node js-externs js-export
+all: build
 
+check: js-test-compile js-test-lint
 
-build: pg.node js-externs js-export
+build: js-externs js-export
 
+native: pg.node
 
-clean : js-clean
-	rm -rf $(BUILD_DIR)/*
-
-
-install-dev: install
-
-install-deploy: install
-
-install :
-	apt-get install libpq-dev
-	apt-get install libjemalloc-dev
-	apt-get install libv8-dev
-	mkdir -p $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
-	mkdir -p $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/externs/;
-	cp package.json $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/;
-	cp bin/index.js $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
-	cp bin/pg.node $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
-	cp externs/*.js $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/externs/;
-
-
-uninstall :
-	rm -rf $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME);
-
+clean: js-clean
+	rm -rf bin/*
 
 pg.node : pg.o \
 		  utils.o \
 		  pool.o \
 		  connection.o \
 		  query.o
-	$(CC) -o $(BUILD_DIR)/$@ \
-	   	  $(addprefix $(BUILD_DIR)/, $^) -L/opt/postgres/lib \
+	$(CC) -o bin/$@ \
+	   	  $(addprefix bin/, $^) -L/opt/postgres/lib \
 	   	  $(addprefix -l, $(LIBS)) $(LINK_FLAGS)
 
 %.o : %.cc
-	$(CC) $(CFLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -o $(BUILD_DIR)/$@  -c $<
+	$(CC) $(CFLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -o bin/$@  -c $<
 
 
 include $(JS_BUILD_HOME)/js-rules.mk
