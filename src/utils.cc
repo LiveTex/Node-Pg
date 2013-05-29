@@ -77,7 +77,7 @@ v8::Local<v8::Value> get_value(const char * data, int length, Oid type_id) {
 	//printf("> %d\n", type_id);
 
 	switch (type_id) {
-		//case 20: // int8
+		case 20: // int8
 		case 21: // int2
 		case 23: // int4
 		case 26: // oid
