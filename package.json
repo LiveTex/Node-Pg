@@ -1,11 +1,11 @@
 {
   "name": "node-pg",
   "main": "bin/index.js",
-  "version": "1.0.2",
+  "version": "1.0.2-1",
 
   "scripts": {
     "prepublish": "make clean && make check && make",
-    "preinstall": "sudo apt-get install libpq-dev libjemalloc-dev libv8-dev",
+    "preinstall": "sudo apt-get -y install libpq-dev libjemalloc-dev libv8-dev",
     "install": "make native"
   },
 
