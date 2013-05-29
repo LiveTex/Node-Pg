@@ -19,7 +19,7 @@ JS_BUILD_HOME=/usr/lib/js-build-tools
 
 include $(JS_BUILD_HOME)/js-variables.mk
 
-MODULE_NAME ?= pg
+MODULE_NAME ?= node-pg
 INSTALL_PREFIX ?= /usr/lib/
 
 #
