@@ -11,7 +11,7 @@ var pg = {};
  * @const
  * @type {string}
  */
-pg.VERSION = '0.1.0';
+pg.VERSION = '1.0.2';
 
 /**
  * @typedef {Array.<!Object.<string, (number|string|boolean|null)>>}
