@@ -14,9 +14,14 @@ var pg = {};
 pg.VERSION = '1.0.2';
 
 /**
- * @typedef {Array.<!Object.<string, (number|string|boolean|null)>>}
+ * @typedef {Object.<string, (number|string|boolean|null)>}
  */
-pg.ResultTable;
+pg.Row;
+
+/**
+ * @typedef {Array.<!pg.Row>}
+ */
+pg.Table;
 
 /**
  * @param {string} string Исходная строка.
@@ -45,7 +50,7 @@ pg.init = function(size, options) {};
 
 /**
  * @param {string} query Запрос.
- * @param {function(!pg.ResultTable)} complete Обработчик результата.
+ * @param {function(!pg.Table)} complete Обработчик результата.
  * @param {function(string, number=)} cancel Обработчик ошибки.
  */
 pg.exec = function(query, complete, cancel) {};
@@ -53,7 +58,7 @@ pg.exec = function(query, complete, cancel) {};
 /**
  * @param {string} query Запрос.
  * @param {!Object} params Параметры запроса.
- * @param {function(!pg.ResultTable)} complete Обработчик результата.
+ * @param {function(!pg.Table)} complete Обработчик результата.
  * @param {function(string, number=)} cancel Обработчик ошибки.
  */
 pg.execPrepared = function(query, params, complete, cancel) {};

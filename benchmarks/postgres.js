@@ -2,55 +2,52 @@ var pg = require('pg');
 
 
 var count = parseInt(process.argv[3]);
-var query = process.argv[4]  || "SELECT NOW()";
+var query = process.argv[4]  || "SELECT 1";
 
-var options = {
-	user: 'test',
-	database: 'relive_benchmark',
-        password: 'lttest',
-	host: process.argv[2],
-	port: '6432'
-};
-
-var mem = 0;
-
-function exec() {
-	pg.connect(options, function(err, client) {
-		if (client === null) {
-			e++;
-			r++;
-		} else {
-			client.query(query, callback);
-		}
-	});
-}
 
 var r = 0;
 var e = 0;
-function callback(err, res) {
-	if (err !== null) {
-		e++;
-	}
-
-	mem += process.memoryUsage().heapUsed/1024/1024;
-
-	console.log(err, res);
-
-	r++;
-	if (r == count) {
-		console.log('[NODE-POSTGRES] | R:', r, ' | E:', e, ' | T:', Date.now() - t, ' | M:', (Math.round(mem/r*10)/10));
-		process.exit();
-	}
-}
-
-
 var t = Date.now();
-var i = 0;
-while (i < count) {
-   exec();
+var mem = 0;
 
-	i++;
-}
+
+var client = new pg.Client('tcp://postgres:123@' + process.argv[2] +  '/postgres');
+client.connect(function() {
+  function exec() {
+    client.query(query, callback);
+  }
+
+  function callback(err) {
+    if (err !== null) {
+      e += 1;
+    }
+
+    mem += process.memoryUsage().heapUsed/1024/1024;
+
+    if ((r += 1) === count) {
+      console.log('[NODE-POSTGRES] | R:', r, ' | E:', e, ' | T:', Date.now() - t, ' | M:', (Math.round(mem/r*10)/10));
+      //run();
+    }
+  }
+
+  function run() {
+    r = 0;
+    e = 0;
+    t = Date.now();
+    mem = 0;
+
+    for (var i = 0; i < count; i += 1) {
+      exec();
+    }
+  }
+
+
+  run();
+});
+
+
+
+
 
 
 

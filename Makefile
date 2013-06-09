@@ -12,26 +12,24 @@ VPATH = src
 
 JS_BUILD_HOME ?= /usr/lib/js-build-tools
 JS_ROOT_DIR  = ./
-JS_DEPS_DIRS = /usr/lib/node/node-util
-JS_CUSTOM_EXTERNS = lib/externs.js
+JS_DEPS_DIRS = node_modules/node-util
 
-JS_BUILD_HOME=/usr/lib/js-build-tools
+JS_CUSTOM_EXTERNS = lib/externs.js
 
 include $(JS_BUILD_HOME)/js-variables.mk
 
 MODULE_NAME ?= node-pg
-INSTALL_PREFIX ?= /usr/lib/
 
 #
 #	Global
 #
 
 
-all: build
+all: js native
 
 check: js-test-compile js-test-lint
 
-build: js-externs js-export
+js: js-externs js-export
 
 native: pg.node
 
@@ -49,18 +47,6 @@ pg.node : pg.o \
 
 %.o : %.cc
 	$(CC) $(CFLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -o bin/$@  -c $<
-
-install :
-	apt-get install libpq-dev
-	apt-get install libjemalloc-dev
-	apt-get install libv8-dev
-	mkdir -p $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
-	mkdir -p $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/externs/;
-	cp package.json $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/;
-	cp bin/index.js $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
-	cp bin/pg.node $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/bin/;
-	cp externs/index.js $(DESTDIR)$(INSTALL_PREFIX)/node/$(MODULE_NAME)/externs/;
-
 
 
 include $(JS_BUILD_HOME)/js-rules.mk

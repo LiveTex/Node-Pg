@@ -1,10 +1,10 @@
 var pg = require('../bin');
 
 pg.init(20, {
-  'user': 'test',
-  'dbname': 'relive_prerelease',
+  'user': 'postgres',
+  'dbname': 'postgres',
   'hostaddr': process.argv[2],
-  'password': 'lttest',
+  'password': '123',
   'port': 5432
 });
 
@@ -13,33 +13,41 @@ var query = process.argv[4]  || "SELECT 1";
 
 var r = 0;
 var e = 0;
-
+var t = Date.now();
 var mem = 0;
 
 function exec() {
-  pg.exec(query, callback, callback);
+  pg.exec(query, complete, cancel);
 }
 
-function callback(err, res) {
+
+function cancel() {
+  e += 1;
+  complete();
+}
+
+function complete() {
   mem += process.memoryUsage().heapUsed/1024/1024;
 
-  r++;
-  if (r === count) {
+  if ((r += 1) === count) {
     console.log('[NODE-PG] | R:', r, ' | E:', e, ' | T:', Date.now() - t, ' | M:', (Math.round(mem/r*10)/10));
+    //run();
+  }
+}
 
+function run() {
+  r = 0;
+  e = 0;
+  t = Date.now();
+  mem = 0;
+
+  for (var i = 0; i < count; i += 1) {
+    exec();
   }
 }
 
 
-var t = Date.now();
-var i = 0;
-while (i < count) {
-  exec();
-  
-  i++;
-}
+run();
 
-/*setInterval(function() {
-  console.log('[NODE-PG] | M:', (Math.round(process.memoryUsage().heapUsed/1024/1024*10)/10));
-}, 1000);*/
+
 
