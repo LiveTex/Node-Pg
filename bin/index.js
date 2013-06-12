@@ -1,7 +1,4 @@
-var __pg = require('./pg.node');
-
-var querystring = require('querystring');
-'use strict';var pg = {};
+var querystring = require('querystring'); var __pg = require('./pg.node');   'use strict';var pg = {};
 pg.VERSION = "1.0.2";
 pg.Row;
 pg.Table;
@@ -68,5 +65,4 @@ pg.execPrepared = function(query, params, complete, cancel) {
 pg.destroy = function() {
   __pg.destroy()
 };
-
-module.exports = pg;
+   module.exports = pg;

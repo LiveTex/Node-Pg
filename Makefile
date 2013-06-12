@@ -1,6 +1,11 @@
 
 
 
+#
+#   Native variables
+#
+
+
 CC = gcc 
 
 CFLAGS = -fno-inline -O3 -Wall -fPIC -DPIC -pthread
@@ -12,30 +17,29 @@ INCLUDE_DIRS = /usr/include/node /usr/include/postgresql /usr/include/jemalloc
 
 VPATH = src
 
-JS_BUILD_HOME ?= /usr/lib/js-build-tools
-JS_ROOT_DIR  = ./
 
-JS_CUSTOM_EXTERNS = lib/externs.js
-
-include $(JS_BUILD_HOME)/js-variables.mk
-
-MODULE_NAME ?= node-pg
 
 #
-#	Global
+#   JS variables
+#
+
+JS_COMPILER = java -jar /usr/lib/js-build-tools/tools/compiler.jar
+
+JS_COMPILER_ARGS = --warning_level VERBOSE \
+				--output_wrapper="$(shell cat lib/output-wrapper.js)" \
+				--language_in=ECMASCRIPT5_STRICT \
+				--debug --formatting PRETTY_PRINT \
+			  --externs lib/externs.js
+
+
+
+#
+#   Native
 #
 
 
-all: js native
+native-build : pg.node
 
-check: js-test-compile js-test-lint
-
-js: js-externs js-export
-
-native: pg.node
-
-clean: js-clean
-	rm -rf bin/*
 
 pg.node : pg.o \
 		  utils.o \
@@ -46,9 +50,37 @@ pg.node : pg.o \
 	   	  $(addprefix bin/, $^) -L/opt/postgres/lib \
 	   	  $(addprefix -l, $(LIBS)) $(LINK_FLAGS)
 
+
 %.o : %.cc
 	$(CC) $(CFLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -o bin/$@  -c $<
 
 
-include $(JS_BUILD_HOME)/js-rules.mk
 
+#
+#	  JS
+#
+
+
+js-build : index.js
+
+
+js-lint : $(shell cat src.d)
+	gjslint --beep --strict --custom_jsdoc_tags='namespace,event' $^;
+
+
+js-check : $(shell cat src.d)
+	$(JS_COMPILER) $(JS_COMPILER_ARGS) --compilation_level ADVANCED_OPTIMIZATIONS \
+	               $(addprefix --js , $^)
+
+
+index.js : $(shell cat src.d)
+	$(JS_COMPILER) $(JS_COMPILER_ARGS) --compilation_level WHITESPACE_ONLY \
+	               $(addprefix --js , $^) > bin/$@
+
+
+#
+#   Clean
+#
+
+clean: js-clean
+	rm -rf bin/*
