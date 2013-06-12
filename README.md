@@ -92,6 +92,32 @@ You can pass different params to one prepared query.
 * `pg.PreparedParams`:`{Object.<string, (!pg.PreparedValue|!Array.<!pg.PreparedValue>)>}` - Definition of data object for query preparation. 
 
 
+### Methods
+
+
+#### `pg.escapeString`:`string`
+
+Escape strings in sql queries. For string escape we use <a href="http://goo.gl/X43TE">dollar-quoting</a>.
+
+Arguments:
+
+* `string`:`string` Original string.
+
+Returns escaped string.
+
+
+#### `pg.escapeArray`:`string`
+
+Escape array of values. Array is casted to string of escaped elements divided by comma.
+
+Arguments:
+
+* `array`:`!Array.<!pg.PreparedValue>` Array of values.
+
+Returns escaped strings divided by comma.
+
+
+
 ## License
 
 Modified BSD License
