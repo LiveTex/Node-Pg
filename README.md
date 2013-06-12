@@ -95,7 +95,7 @@ You can pass different params to one prepared query.
 ### Methods
 
 
-#### `pg.escapeString`:`string`
+#### pg.escapeString:`string`
 
 Escape strings in sql queries. For string escape we use <a href="http://goo.gl/X43TE">dollar-quoting</a>.
 
@@ -106,7 +106,7 @@ Arguments:
 Returns escaped string.
 
 
-#### `pg.escapeArray`:`string`
+#### pg.escapeArray:`string`
 
 Escape array of values. Array is casted to string of escaped elements divided by comma.
 
