@@ -84,12 +84,12 @@ You can pass different params to one prepared query.
 ### Type definitions
 
 
-* `pg.Row`:`{Object.<string, (number|string|boolean|null)>}` - Table result row definition.
-* `pg.Table`:`{Array.<!pg.Row>}` - Definition of query result table.
-* `pg.ResultHandler`:`{?function(pg.Table)}` - Definition of function type to handle query execution result. Function argument - query result table.
-* `pg.ErrorHandler`:`{?function(string, number=)}` - Definition of function type to handle errors. Function arguments are error message string and optional error code. 
-* `pg.PreparedValue`:`{?(number|string|boolean)}` - Definition of value types for insertion to prepared query. 
-* `pg.PreparedParams`:`{Object.<string, (!pg.PreparedValue|!Array.<!pg.PreparedValue>)>}` - Definition of data object for query preparation. 
+* pg.Row:`{Object.<string, (number|string|boolean|null)>}` - Table result row definition.
+* pg.Table:`{Array.<!pg.Row>}` - Definition of query result table.
+* pg.ResultHandler:`{?function(pg.Table)}` - Definition of function type to handle query execution result. Function argument - query result table.
+* pg.ErrorHandler:`{?function(string, number=)}` - Definition of function type to handle errors. Function arguments are error message string and optional error code. 
+* pg.PreparedValue:`{?(number|string|boolean)}` - Definition of value types for insertion to prepared query. 
+* pg.PreparedParams:`{Object.<string, (!pg.PreparedValue|!Array.<!pg.PreparedValue>)>}` - Definition of data object for query preparation. 
 
 
 ### Methods
@@ -101,7 +101,7 @@ Escape strings in sql queries. For string escape we use <a href="http://goo.gl/X
 
 Arguments:
 
-* `string`:`string` Original string.
+* string:`string` Original string.
 
 Returns escaped string.
 
@@ -112,7 +112,7 @@ Escape array of values. Array is casted to string of escaped elements divided by
 
 Arguments:
 
-* `array`:`!Array.<!pg.PreparedValue>` Array of values.
+* array:`!Array.<!pg.PreparedValue>` Array of values.
 
 Returns escaped strings divided by comma.
 
