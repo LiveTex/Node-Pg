@@ -81,6 +81,18 @@ You can pass different params to one prepared query.
 
 ## API
 
+### Type definitions
+
+
+* `pg.Row` - Table result row definition. `{Object.<string, (number|string|boolean|null)>}`
+* `pg.Table` - Definition of query result table. `{Array.<!pg.Row>}`
+* `pg.ResultHandler` - Definition of function type to handle query execution
+result. Function argument - query result table. `{?function(pg.Table)}`
+* `pg.ErrorHandler` - Definition of function type to handle errors. Function
+arguments are error message string and optional error code. `{?function(string, number=)}`
+* `pg.PreparedValue` - Definition of value types for insertion to prepared query. `{?(number|string|boolean)}`
+* `pg.PreparedParams` - Definition of data object for query preparation. `{Object.<string, (!pg.PreparedValue|!Array.<!pg.PreparedValue>)>}`
+
 
 ## License
 
