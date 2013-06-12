@@ -1,8 +1,9 @@
 var pg = require('pg');
 
 
-var count = parseInt(process.argv[3]);
-var query = process.argv[4]  || "SELECT 1";
+var count = 0;
+var step = 1;
+var query = process.argv[3]  || "SELECT 1";
 
 
 var r = 0;
@@ -26,7 +27,7 @@ client.connect(function() {
 
     if ((r += 1) === count) {
       console.log('[NODE-POSTGRES] | R:', r, ' | E:', e, ' | T:', Date.now() - t, ' | M:', (Math.round(mem/r*10)/10));
-      //run();
+      run();
     }
   }
 
@@ -35,6 +36,12 @@ client.connect(function() {
     e = 0;
     t = Date.now();
     mem = 0;
+    count += step;
+
+    if (count / step === 10) {
+      step *= 10;
+    }
+
 
     for (var i = 0; i < count; i += 1) {
       exec();

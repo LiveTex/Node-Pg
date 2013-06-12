@@ -7,9 +7,5 @@
     "prepublish": "make clean && make check && make js",
     "preinstall": "sudo apt-get -y install libpq-dev libjemalloc-dev libv8-dev",
     "install": "make native"
-  },
-
-  "dependencies": {
-    "node-util": "*"
   }
 }

@@ -45,8 +45,9 @@ pg.prepareQuery = function(query, params) {};
 /**
  * @param {number} size Размер пула.
  * @param {!Object} options Настройки соединения с базой.
+ * @param {function(!Error)=} opt_errorHandler Обработчик ошибок подключения.
  */
-pg.init = function(size, options) {};
+pg.init = function(size, options, opt_errorHandler) {};
 
 /**
  * @param {string} query Запрос.

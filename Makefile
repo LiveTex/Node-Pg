@@ -1,4 +1,6 @@
 
+
+
 CC = gcc 
 
 CFLAGS = -fno-inline -O3 -Wall -fPIC -DPIC -pthread
@@ -12,7 +14,6 @@ VPATH = src
 
 JS_BUILD_HOME ?= /usr/lib/js-build-tools
 JS_ROOT_DIR  = ./
-JS_DEPS_DIRS = node_modules/node-util
 
 JS_CUSTOM_EXTERNS = lib/externs.js
 
