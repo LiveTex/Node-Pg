@@ -14,3 +14,10 @@ pg.execPrepared(preparedQuery, {
 }, function(table) {
   console.log('Result table:', table);
 }, console.error);
+
+pg.execPrepared(preparedQuery, {
+  'word1': 'bye',
+  'word2': 'bye'
+}, function(table) {
+  console.log('Result table:', table);
+}, console.error);

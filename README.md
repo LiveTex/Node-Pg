@@ -8,7 +8,7 @@ Multithread Postgres driver for Node-JS builded on libpq and libjemalloc.
 
 ### Simple query processing
 
-    var pg = require('../bin');
+    var pg = require('livetex-node-pg');
 
     pg.init(20, {
       'user': 'postgres',
@@ -31,7 +31,7 @@ any other method.
 
 ### Process destroying
 
-    var pg = require('../bin');
+    var pg = require('livetex-node-pg');
 
     pg.init(20, {
       'user': 'postgres',
@@ -52,7 +52,7 @@ Nothing happen after `destroy` call.
 ### Prepared queries
 
 
-    var pg = require('../bin');
+    var pg = require('livetex-node-pg');
     var preparedQuery = "SELECT $word1 AS word1, $word2 AS word2";
 
     pg.init(20, {
