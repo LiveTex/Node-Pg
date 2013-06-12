@@ -16,6 +16,9 @@
   }, {
     "name": "Maxim Kalachev",
     "email": "kalachevmax@gmail.com"
+  }, {
+    "name": "Valeria Lepina",
+    "email": "divergence082@gmail.com"
   }],
 
   "main": "bin/index.js",
