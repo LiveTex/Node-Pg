@@ -82,5 +82,5 @@ index.js : $(shell cat src.d)
 #   Clean
 #
 
-clean: js-clean
-	rm -rf bin/*
+clean:
+	rm -rf bin/*.o bin/*.node
