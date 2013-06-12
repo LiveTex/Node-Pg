@@ -4,7 +4,7 @@
   "version": "1.0.0",
 
   "scripts": {
-    "prepublish": "make clean && make check && make js-build",
+    "prepublish": "make clean && make js-check && make js-lint && make js-build",
     "preinstall": "sudo apt-get -y install libpq-dev libjemalloc-dev libv8-dev",
     "install": "make native-build"
   }
