@@ -1,7 +1,5 @@
-
-
-
 var pg = require('../bin');
+var preparedQuery = "SELECT $word1 AS word1, $word2 AS word2";
 
 pg.init(20, {
   'user': 'postgres',
@@ -10,12 +8,9 @@ pg.init(20, {
   'password': '123'
 });
 
-pg.exec("SELECT 1 AS value", function(table) {
+pg.execPrepared(preparedQuery, {
+  'word1': 'hello',
+  'word2': 'world'
+}, function(table) {
   console.log('Result table:', table);
 }, console.error);
-
-pg.exec("SELECT 2 AS another_value", function(table) {
-  console.log('Result table:', table);
-}, console.error);
-
-
