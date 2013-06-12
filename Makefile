@@ -8,7 +8,7 @@
 
 CC = gcc 
 
-CFLAGS = -fno-inline -O3 -Wall -fPIC -DPIC -pthread
+C_FLAGS = -fno-inline -O3 -Wall -fPIC -DPIC -pthread
 LINK_FLAGS = -shared -pthread 
 
 LIBS = pq v8 jemalloc
@@ -32,6 +32,17 @@ JS_COMPILER_ARGS = --warning_level VERBOSE \
 			  --externs lib/externs.js
 
 
+#
+#   Common
+#
+
+all: js-build native-build
+
+
+clean:
+	rm -rf bin/*.o bin/*.node
+
+
 
 #
 #   Native
@@ -47,12 +58,12 @@ pg.node : pg.o \
 		  connection.o \
 		  query.o
 	$(CC) -o bin/$@ \
-	   	  $(addprefix bin/, $^) -L/opt/postgres/lib \
+	   	  $(addprefix bin/, $^) \
 	   	  $(addprefix -l, $(LIBS)) $(LINK_FLAGS)
 
 
 %.o : %.cc
-	$(CC) $(CFLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -o bin/$@  -c $<
+	$(CC) $(C_FLAGS) $(addprefix -I, $(INCLUDE_DIRS)) -o bin/$@  -c $<
 
 
 
@@ -78,9 +89,3 @@ index.js : $(shell cat src.d)
 	               $(addprefix --js , $^) > bin/$@
 
 
-#
-#   Clean
-#
-
-clean:
-	rm -rf bin/*.o bin/*.node
