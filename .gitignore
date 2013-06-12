@@ -1,8 +1,6 @@
-bin/*.o
-bin/*.node
+bin/
 .idea/
 .build/
 *.iml
-build/
 node_modules
 

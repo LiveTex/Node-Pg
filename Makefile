@@ -49,7 +49,7 @@ clean:
 #
 
 
-native-build : pg.node
+native-build : setup-build-dir pg.node
 
 
 pg.node : pg.o \
@@ -72,7 +72,7 @@ pg.node : pg.o \
 #
 
 
-js-build : index.js
+js-build : setup-build-dir index.js
 
 
 js-lint : $(shell cat src.d)
@@ -112,3 +112,5 @@ setup-linter :
 	[ $$? -eq 0 ] || sudo pip install -U http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz;
 
 
+setup-build-dir :
+	mkdir bin/
