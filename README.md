@@ -83,7 +83,6 @@ You can pass different params to one prepared query.
 
 ### Type definitions
 
-
 * pg.Row:`{Object.<string, (number|string|boolean|null)>}` - Table result row definition.
 * pg.Table:`{Array.<!pg.Row>}` - Definition of query result table.
 * pg.ResultHandler:`{?function(pg.Table)}` - Definition of function type to handle query execution result. Function argument - query result table.
@@ -97,7 +96,7 @@ You can pass different params to one prepared query.
 
 #### pg.escapeString:`string`
 
-Escape strings in sql queries. For string escape we use <a href="http://goo.gl/X43TE">dollar-quoting</a>.
+Escapes strings in sql queries. For string escape we use <a href="http://goo.gl/X43TE">dollar-quoting</a>.
 
 Arguments:
 
@@ -108,7 +107,7 @@ Returns escaped string.
 
 #### pg.escapeArray:`string`
 
-Escape array of values. Array is casted to string of escaped elements divided by comma.
+Escapes array of values. Array is casted to string of escaped elements divided by comma.
 
 Arguments:
 
@@ -117,6 +116,55 @@ Arguments:
 Returns escaped strings divided by comma.
 
 
+#### pg.init: `void`
+
+Initializes connections pool.
+
+Arguments: 
+
+* size: `number` Pool size - Count of pool connections.
+* options: `!Object` Connection options. Options must be an object with keys specified in <a href="http://goo.gl/eqPw4">documentation</a>.
+* opt_errorHandler: `!pg.ErrorHandler=` Connection error handler. <pre>console.error</pre> will be used by default.
+
+
+#### pg.exec: `void`
+
+Executes SQL-query.
+
+Arguments:
+
+* query: `string` SQL-query string.
+* complete: `!pg.ResultHandler` Success result handler.
+* cancel: `!pg.ErrorHandler` Execution error handler.
+
+
+#### pg.execPrepared: `void`
+
+Executes prepared SQL-query.
+
+Arguments:
+
+* query: `string` Prepared SQL-query string.
+* params: `!pg.PreparedParams` Data object for query preparation.
+* complete: `!pg.ResultHandler` Success result handler.
+* cancel: `!pg.ErrorHandler` Execution error handler.
+
+
+#### pg.prepareQuery: `string`
+
+Prepares ready-to-use SQL-query.
+
+Arguments:
+
+* query: `string` Prepared SQL-query string.
+* params: `!pg.PreparedParams` Data object for query preparation.
+
+Returns ready-to-use SQL-query.
+
+
+#### pg.destroy: `void`
+
+Destroys connection pool.
 
 ## License
 
