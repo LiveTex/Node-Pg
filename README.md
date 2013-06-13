@@ -124,7 +124,7 @@ Arguments:
 
 * size: `number` Pool size - Count of pool connections.
 * options: `!Object` Connection options. Options must be an object with keys specified in <a href="http://goo.gl/eqPw4">documentation</a>.
-* opt_errorHandler: `!pg.ErrorHandler=` Connection error handler. <pre>console.error</pre> will be used by default.
+* opt_errorHandler: `!pg.ErrorHandler=` Connection error handler. `console.error` will be used by default.
 
 
 #### pg.exec: `void`
