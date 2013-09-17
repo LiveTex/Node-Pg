@@ -2,6 +2,9 @@
 
 Multithreaded Postgres driver for Node-JS built with `libpq` and `libjemalloc`.
 
+####Install via npm: 
+    npm install livetex-node-pg
+    
 ## Examples
 
 ### Simple query processing
