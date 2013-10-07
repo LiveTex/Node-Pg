@@ -89,7 +89,7 @@ index.js : $(shell cat src.d)
 #   Setup compiler and linter
 #
 
-setup : setup-compiler setup-linter
+setup : setup-compiler setup-linter check-node-gyp
 
 
 setup-compiler :
@@ -105,6 +105,14 @@ setup-compiler :
 setup-linter :
 	which gjslint > /dev/null; \
 	[ $$? -eq 0 ] || sudo pip install -U http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz;
+
+
+check-node-gyp :
+	if [ -z "$(shell npm list -g 2>/dev/null | grep node-gyp)" ]; \
+	then \
+	echo "\033[31mPlease, install node-gyp: sudo npm install -g node-gyp\033[0m"; \
+	exit 1; \
+	fi
 
 
 setup-build-dir :
