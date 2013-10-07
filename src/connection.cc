@@ -91,7 +91,8 @@ void connection_queue_work(connection_t * connection, uv_work_cb work) {
 
 	connection->activity_status = BUSY;
 
-	uv_queue_work(uv_default_loop(), work_item, work, connection_work_handler);
+	uv_queue_work(uv_default_loop(), work_item, work,
+			(uv_after_work_cb) connection_work_handler);
 }
 
 
