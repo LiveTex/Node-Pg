@@ -52,14 +52,9 @@ clean:
 native-build : setup-build-dir pg.node
 
 
-pg.node : pg.o \
-		  utils.o \
-		  pool.o \
-		  connection.o \
-		  query.o
-	$(CC) -o bin/$@ \
-	   	  $(addprefix bin/, $^) \
-	   	  $(addprefix -l, $(LIBS)) $(LINK_FLAGS)
+pg.node : 
+	node-gyp clean configure build
+	cp ./build/Release/pg.node ./bin
 
 
 %.o : %.cc
