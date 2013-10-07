@@ -113,4 +113,4 @@ setup-linter :
 
 
 setup-build-dir :
-	mkdir bin/
+	mkdir -p bin/

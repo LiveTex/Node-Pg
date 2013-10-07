@@ -1,6 +1,7 @@
 bin/
 .idea/
 .build/
+build/
 *.iml
 node_modules
 
