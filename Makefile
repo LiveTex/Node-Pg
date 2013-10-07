@@ -41,6 +41,7 @@ all: js-build native-build
 
 clean:
 	rm -rf bin/*.o bin/*.node
+	node-gyp clean
 
 
 
@@ -53,7 +54,7 @@ native-build : setup-build-dir pg.node
 
 
 pg.node : 
-	node-gyp clean configure build
+	node-gyp configure build
 	cp ./build/Release/pg.node ./bin
 
 

@@ -12,6 +12,10 @@
       "include_dirs": [
         "/usr/include/postgresql",
         "/usrl/include/jemalloc"
+      ],
+      "libraries" :[
+        "-lpq",
+        "-ljemalloc"
       ]
     }
   ]
