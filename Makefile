@@ -11,32 +11,22 @@ CC = gcc
 C_FLAGS = -fno-inline -O3 -Wall -fPIC -DPIC -pthread
 LINK_FLAGS = -shared -pthread 
 
-LIBS = pq v8 jemalloc
+JS_BUILD_HOME ?= /usr/lib/js-build-tools
+JS_ROOT_DIR = ./
 
-INCLUDE_DIRS = /usr/include/node /usr/include/postgresql /usr/include/jemalloc
+JS_CUSTOM_EXTERNS = lib/externs.js
 
-VPATH = src
+include $(JS_BUILD_HOME)/js-variables.mk
 
+MODULE_NAME ?= node-pg
 
-
-#
-#   JS variables
-#
-
-JS_COMPILER = java -jar .build/compiler.jar
-
-JS_COMPILER_ARGS = --warning_level VERBOSE \
-				--output_wrapper="$(shell cat lib/output-wrapper.js)" \
-				--language_in=ECMASCRIPT5_STRICT \
-				--debug --formatting PRETTY_PRINT \
-			  --externs lib/externs.js
 
 
 #
 #   Common
 #
 
-all: js-build native-build
+all: js native-build
 
 
 clean:
@@ -66,6 +56,9 @@ pg.node :
 #
 #	  JS
 #
+
+
+js: js-externs js-export
 
 
 js-build : setup-build-dir index.js
@@ -118,3 +111,7 @@ check-node-gyp :
 
 setup-build-dir :
 	mkdir -p bin/
+
+
+include $(JS_BUILD_HOME)/js-rules.mk
+
