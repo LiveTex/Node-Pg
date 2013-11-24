@@ -57,14 +57,15 @@ Nothing happen after `destroy` call.
 
 ```js
 var pg = require('livetex-node-pg');
-var preparedQuery = "SELECT $word1 AS word1, $word2 AS word2";
 
 pg.init(20, {
   'user': 'postgres',
   'dbname': 'postgres',
   'hostaddr': '127.0.0.1',
-  'password': '123'
+  'password': '5432'
 });
+
+var preparedQuery = "SELECT $word1 AS word1, $word2 AS word2";
 
 pg.execPrepared(preparedQuery, {
   'word1': 'hello',
