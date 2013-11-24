@@ -97,9 +97,9 @@ setup-compiler :
 	if [ ! -f .build/compiler.jar ]; \
 	then \
 	mkdir .build/ ; \
-	wget http://closure-compiler.googlecode.com/files/compiler-latest.zip -O .build/google-closure.zip ; \
-	unzip .build/google-closure.zip -d .build/ compiler.jar ; \
-	rm .build/google-closure.zip > /dev/null ; \
+	wget http://dl.google.com/closure-compiler/compiler-latest.zip -O .build/compiler.zip ; \
+	unzip .build/compiler.zip -d .build/ compiler.jar; \
+	rm .build/compiler.zip > /dev/null ; \
 	fi
 
 
