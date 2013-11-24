@@ -16,7 +16,7 @@ pg.init(20, {
   'user': 'postgres',
   'dbname': 'postgres',
   'hostaddr': '127.0.0.1',
-  'password': '123'
+  'password': '5432'
 });
 
 pg.exec("SELECT 1 AS value", function(table) {
@@ -41,7 +41,7 @@ pg.init(20, {
   'user': 'postgres',
   'dbname': 'postgres',
   'hostaddr': '127.0.0.1',
-  'password': '123'
+  'password': '5432'
 });
 
 pg.exec("SELECT 1 AS value", function(table) {
