@@ -15,6 +15,9 @@ LIBS = pq v8 jemalloc
 
 INCLUDE_DIRS = /usr/include/node /usr/include/postgresql /usr/include/jemalloc
 
+DEPS_PATH ?= ./node_modules
+TOOLS_HOME ?= $(shell pwd)/$(DEPS_PATH)/livetex-tools
+
 VPATH = src
 
 
@@ -23,7 +26,10 @@ VPATH = src
 #   JS variables
 #
 
-JS_COMPILER = java -jar .build/compiler.jar
+JS_COMPILER ?= java -jar $(TOOLS_HOME)/tools/compiler.jar
+
+JS_LINTER ?= $(TOOLS_HOME)/tools/gjslint/closure_linter/gjslint.py \
+		--strict --custom_jsdoc_tags="namespace, event"
 
 JS_COMPILER_ARGS = --warning_level VERBOSE \
 				--output_wrapper="$(shell cat lib/output-wrapper.js)" \
@@ -72,7 +78,7 @@ js-build : setup-build-dir index.js
 
 
 js-lint : $(shell cat src.d)
-	gjslint --beep --strict --custom_jsdoc_tags='namespace,event' $^;
+	$(JS_LINTER) $^;
 
 
 js-check : $(shell cat src.d)
@@ -90,22 +96,7 @@ index.js : $(shell cat src.d)
 #   Setup compiler and linter
 #
 
-setup : setup-compiler setup-linter check-node-gyp
-
-
-setup-compiler :
-	if [ ! -f .build/compiler.jar ]; \
-	then \
-	mkdir .build/ ; \
-	wget http://closure-compiler.googlecode.com/files/compiler-latest.zip -O .build/google-closure.zip ; \
-	unzip .build/google-closure.zip -d .build/ compiler.jar ; \
-	rm .build/google-closure.zip > /dev/null ; \
-	fi
-
-
-setup-linter :
-	which gjslint > /dev/null; \
-	[ $$? -eq 0 ] || sudo pip install -U http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz;
+setup : check-node-gyp
 
 
 check-node-gyp :
