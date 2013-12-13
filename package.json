@@ -1,20 +1,19 @@
 {
-  "name": "livetex-node-pg",
-  "description": "Multithread Postgres driver for Node-JS builded on libpq and libjemalloc.",
-  "readmeFilename": "README.md",
-
-  "version": "1.1.1",
-
+  "name": "node-pg",
   "main": "bin/index.js",
+  "version": "1.1.4",
 
   "scripts": {
-    "prepublish": "make js-check && make js-lint",
-    "preinstall": "sudo apt-get -y install libpq-dev libjemalloc-dev libv8-dev",
-    "install": "npm install livetex-tools && make setup && make"
+    "prepublish": "npm install livetex-tools && make pg.node && make"
   },
 
   "dependencies": {
     "livetex-tools": "*"
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LiveTex/Node-Pg"
   }
 
 }
