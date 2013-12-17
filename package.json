@@ -25,7 +25,6 @@
 
   "scripts": {
     "prepublish": "make js-check && make js-lint",
-    "preinstall": "sudo apt-get -y install libpq-dev libjemalloc-dev libv8-dev",
     "install": "make setup && make"
   },
 
