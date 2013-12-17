@@ -1,6 +1,5 @@
 .idea/
-.build/
-build/
+./.build/
 bin/
 .gitignore
 *.iml
