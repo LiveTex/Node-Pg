@@ -83,7 +83,7 @@ index.js : $(shell cat src.d)
 #   Setup compiler and linter
 #
 
-setup : setup-compiler setup-linter check-node-gyp
+setup : setup-compiler setup-linter
 
 
 setup-compiler :
