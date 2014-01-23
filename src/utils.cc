@@ -82,7 +82,6 @@ v8::Local<v8::Value> get_value(const char * data, int length, Oid type_id) {
 		case 23: // int4
 		case 26: // oid
 		case 28: // xid
-		case 1114: // timestamp
 			return value->ToInteger();
 
 		case 700: // float4
