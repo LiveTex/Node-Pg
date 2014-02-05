@@ -1,38 +1,38 @@
 {
-  "name": "livetex-node-pg",
-  "description": "Multithread Postgres driver for Node-JS builded on libpq and libjemalloc.",
-  "readmeFilename": "README.md",
+  "name": "node-pg",
+  "main": "bin/index.js",
+  "version": "2.0.0",
+  "scripts": {
+    "install": "npm install livetex-tools && node-gyp rebuild && make pg.node && make"
+  },
+  "dependencies": {
+    "livetex-tools": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LiveTex/Node-Pg"
+  },
 
-  "version": "1.0.0",
+  "gypfile": true,
 
   "license": "Modified BSD License",
 
-  "contributors": [{
-    "name": "Sergey Kononenko",
-    "email": "kononencheg@gmail.com"
-  }, {
-    "name": "Evgeny Mikheev",
-    "email": "eudgee@gmail.com"
-  }, {
-    "name": "Maxim Kalachev",
-    "email": "kalachevmax@gmail.com"
-  }, {
-    "name": "Valeria Lepina",
-    "email": "divergence082@gmail.com"
-  }],
-
-  "main": "bin/index.js",
-
-  "scripts": {
-    "prepublish": "make js-check && make js-lint",
-    "preinstall": "sudo apt-get -y install libpq-dev libjemalloc-dev libv8-dev",
-    "install": "make setup && make"
-  },
-
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/LiveTex/Node-Pg.git"
-  },
-
-  "keywords": ["postgres", "pg", "database"]
+  "contributors": [
+    {
+      "name": "Sergey Kononenko",
+      "email": "kononencheg@gmail.com"
+    },
+    {
+      "name": "Evgeny Mikheev",
+      "email": "eudgee@gmail.com"
+    },
+    {
+      "name": "Maxim Kalachev",
+      "email": "kalachevmax@gmail.com"
+    },
+    {
+      "name": "Valeria Lepina",
+      "email": "divergence082@gmail.com"
+    }
+  ]
 }
