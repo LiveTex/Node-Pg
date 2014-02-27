@@ -3,7 +3,7 @@
   "main": "bin/index.js",
   "version": "1.1.16",
   "scripts": {
-    "install": "npm install livetex-tools && node-gyp rebuild && make pg.node && make"
+    "install": "npm install livetex-tools && node-gyp rebuild && make cpp && make js"
   },
   "dependencies": {
     "livetex-tools": "*"
