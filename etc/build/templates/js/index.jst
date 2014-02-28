@@ -1,0 +1,11 @@
+
+
+var querystring = require('querystring');
+var __pg = require('./pg.node');
+
+var package = require('../package.json');
+console.info(' [MODULE]: ' + package.name + '@' + package.version);
+
+%%make -s index.js-compile%%
+
+module.exports = pg;
