@@ -1,5 +1,5 @@
 .idea/
-bin/
+bin/pg.node
 node_modules
 .gitignore
 *.iml
