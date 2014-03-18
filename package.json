@@ -3,11 +3,10 @@
   "main": "bin/index.js",
   "version": "1.1.18",
   "scripts": {
-    "prebulish": "npm install livetex-tools && make js",
-    "install": "npm install livetex-tools && node-gyp rebuild && make cpp"
+    "install": "npm update && node-gyp rebuild && make cpp && make js"
   },
   "dependencies": {
-    "livetex-tools": "*"
+    "livetex-tools": "0.2.18"
   },
   "repository": {
     "type": "git",

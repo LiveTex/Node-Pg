@@ -1,6 +1,8 @@
-.idea/
-bin/pg.node
-node_modules
-.gitignore
 *.iml
-
+*.log
+.gitignore
+.project
+.idea/
+bin/
+externs/
+node_modules/
