@@ -1,13 +1,16 @@
 {
-  "name": "node-pg",
-  "main": "bin/index.js",
-  "version": "1.1.19",
+  "name": "node-pg", 
+  "main": "bin/index.js", 
+  "version": "1.1.20", 
   "scripts": {
-    "install": "npm update && node-gyp rebuild && make cpp && make js"
+    "install": "node-gyp rebuild && make cpp && make js"
   },
+  "dependencies": {
+    "livetex-tools": "0.2.24"
+  }, 
   "repository": {
-    "type": "git",
+    "type": "git", 
     "url": "https://github.com/LiveTex/Node-Pg"
-  },
+  }, 
   "gypfile": true
 }
