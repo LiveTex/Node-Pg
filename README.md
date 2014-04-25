@@ -41,7 +41,7 @@ pg.init(20, {
   'user': 'postgres',
   'dbname': 'postgres',
   'hostaddr': '127.0.0.1',
-  'password': '5432'
+  'password': 'postgres'
 });
 
 pg.exec("SELECT 1 AS value", function(table) {
@@ -57,15 +57,14 @@ Nothing happen after `destroy` call.
 
 ```js
 var pg = require('livetex-node-pg');
+var preparedQuery = "SELECT $word1 AS word1, $word2 AS word2";
 
 pg.init(20, {
   'user': 'postgres',
   'dbname': 'postgres',
   'hostaddr': '127.0.0.1',
-  'password': '5432'
+  'password': 'postgres'
 });
-
-var preparedQuery = "SELECT $word1 AS word1, $word2 AS word2";
 
 pg.execPrepared(preparedQuery, {
   'word1': 'hello',

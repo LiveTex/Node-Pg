@@ -1,6 +1,8 @@
-.idea/
-./.build/
-bin/
-.gitignore
 *.iml
-
+*.log
+.gitignore
+.project
+.idea/
+bin/
+externs/
+node_modules/

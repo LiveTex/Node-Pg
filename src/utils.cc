@@ -74,7 +74,6 @@ v8::Local<v8::Value> get_value(const char * data, int length, Oid type_id) {
 
 	v8::Local<v8::Value> value = v8::String::New(data, length);
 
-	//printf("> %d\n", type_id);
 
 	switch (type_id) {
 		case 20: // int8
