@@ -1,37 +1,34 @@
 {
-  "name": "livetex-node-pg",
-  "main": "bin/index.js",
-  "version": "2.0.0",
+  "name": "livetex-node-pg", 
+  "main": "bin/index.js", 
+  "version": "2.0.1", 
   "scripts": {
     "install": "node-gyp rebuild && make cpp && make js"
-  },
+  }, 
   "dependencies": {
     "livetex-tools": "2.0.3"
-  },
+  }, 
   "repository": {
-    "type": "git",
+    "type": "git", 
     "url": "https://github.com/LiveTex/Node-Pg"
-  },
-
-  "gypfile": true,
-
-  "license": "Modified BSD License",
-
+  }, 
+  "gypfile": true, 
+  "license": "Modified BSD License", 
   "contributors": [
     {
-      "name": "Sergey Kononenko",
+      "name": "Sergey Kononenko", 
       "email": "kononencheg@gmail.com"
-    },
+    }, 
     {
-      "name": "Evgeny Mikheev",
+      "name": "Evgeny Mikheev", 
       "email": "eudgee@gmail.com"
-    },
+    }, 
     {
-      "name": "Maxim Kalachev",
+      "name": "Maxim Kalachev", 
       "email": "kalachevmax@gmail.com"
-    },
+    }, 
     {
-      "name": "Valeria Lepina",
+      "name": "Valeria Lepina", 
       "email": "divergence082@gmail.com"
     }
   ]
