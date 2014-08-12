@@ -20,6 +20,18 @@
 
 pool_t * pool;
 
+
+bool setPool(pool_t * newPool){
+	pool_t * handle = (pool_t *) newPool->ToObject()->GetPointerFromInternalField(0);
+
+	if (handle == NULL) {
+		return false;
+	}
+	
+	pool = newPool;
+	return true;
+}
+
 v8::Handle<v8::Value> pg_init(const v8::Arguments &args) {
     v8::HandleScope scope;
 
@@ -58,6 +70,9 @@ v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
 		return throw_type_error("Third argument must be query callback!");
 	}
 	
+	if (!setPool(args[0]]))
+		return throw_type_error("Invalid handle!")
+	
 	pool = args[0];	
 
 	v8::String::Utf8Value str(args[1]->ToString());
@@ -77,7 +92,8 @@ v8::Handle<v8::Value> pg_destroy(const v8::Arguments &args) {
 		return throw_type_error("First argument must be pool handle!");
 	}
 
-	pool = args[0];
+	if (!setPool(args[0]]))
+		return throw_type_error("Invalid handle!")
 	
     pool_destroy(pool);
 
