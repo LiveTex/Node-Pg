@@ -17,19 +17,10 @@
 
 #include <signal.h>
 
+pool_t getPool(v8::Handle * newPool){
+	pool_t * pool = (pool_t *) newPool->ToObject()->GetPointerFromInternalField(0);
 
-pool_t * pool;
-
-
-bool setPool(pool_t * newPool){
-	pool_t * handle = (pool_t *) newPool->ToObject()->GetPointerFromInternalField(0);
-
-	if (handle == NULL) {
-		return false;
-	}
-	
-	pool = newPool;
-	return true;
+	return pool;
 }
 
 v8::Handle<v8::Value> pg_init(const v8::Arguments &args) {
@@ -48,7 +39,9 @@ v8::Handle<v8::Value> pg_init(const v8::Arguments &args) {
 	}
 
 	v8::String::Utf8Value str(args[1]->ToString());
-
+	
+	pool_t * pool;
+	
 	pool_init(pool, args[0]->ToInteger()->Int32Value(), *str,
 			  v8::Local<v8::Function>::Cast(args[2]));
 
@@ -70,10 +63,10 @@ v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
 		return throw_type_error("Third argument must be query callback!");
 	}
 	
-	if (!setPool(args[0]]))
-		return throw_type_error("Invalid handle!")
+	pool_t * pool = getPool(args[0]);	
 	
-	pool = args[0];	
+	if (pool == NULL)
+		return throw_type_error("Invalid handle!")
 
 	v8::String::Utf8Value str(args[1]->ToString());
 
@@ -92,7 +85,9 @@ v8::Handle<v8::Value> pg_destroy(const v8::Arguments &args) {
 		return throw_type_error("First argument must be pool handle!");
 	}
 
-	if (!setPool(args[0]]))
+	pool_t * pool = getPool(args[0]);	
+	
+	if (pool == NULL)
 		return throw_type_error("Invalid handle!")
 	
     pool_destroy(pool);
