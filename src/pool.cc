@@ -6,11 +6,13 @@
  */
 
 #include <jemalloc/jemalloc.h>
+#include "stddef.h"
 
 #include "pool.h"
 #include "connection.h"
 #include "queue.h"
 #include "utils.h"
+
 
 
 void pool_spawn_connection(pool_t * pool) {
