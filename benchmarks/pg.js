@@ -1,6 +1,6 @@
 var pg = require('../bin');
 
-pg.init(5, {
+var first = pg.init(5, {
   'dbname': 'relive',
   'user': 'test',
   'password': 'lttest',
@@ -19,7 +19,7 @@ var t = Date.now();
 var mem = 0;
 
 function exec() {
-  pg.exec(query, complete, cancel);
+  pg.exec(first, query, complete, cancel);
 }
 
 

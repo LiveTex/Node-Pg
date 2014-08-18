@@ -22,6 +22,8 @@ typedef struct pool_ {
 
 	query_t * query_queue;
 
+	v8::Persistent<v8::Object> data;
+	
 	struct connection_ * connection_queue;
 
 	v8::Persistent<v8::Function> error_callback;
