@@ -55,7 +55,7 @@ v8::Handle<v8::Value> pg_init(const v8::Arguments &args) {
 v8::Handle<v8::Value> pg_exec(const v8::Arguments& args) {
     v8::HandleScope scope;
 
-		if (args.Length() < 1) {
+	if ((args.Length() < 1) || (!args[0]->IsObject())) {
 		return throw_type_error("First argument must be pool handle!");
 	}
 
@@ -67,14 +67,17 @@ v8::Handle<v8::Value> pg_exec(const v8::Arguments& args) {
 		return throw_type_error("Third argument must be query callback!");
 	}
 
+    if (args[0]->ToObject()->InternalFieldCount() < 1)
+    		return throw_type_error("Invalid handle!");
+
     pool_t * pool = (pool_t *) args[0]->ToObject()->GetPointerFromInternalField(0);
 
 	if (pool == NULL)
-		return throw_type_error("Invalid handle!1");
+		return throw_type_error("Invalid handle!");
 
 	v8::String::Utf8Value str(args[1]->ToString());
 
-    query_t * query = query_alloc(v8::Local<v8::Function>::Cast(args[2]), *str);
+	query_t * query = query_alloc(v8::Local<v8::Function>::Cast(args[2]), *str);
 
     pool_exec(pool, query);
 
@@ -85,19 +88,21 @@ v8::Handle<v8::Value> pg_exec(const v8::Arguments& args) {
 v8::Handle<v8::Value> pg_destroy(const v8::Arguments& args) {
     v8::HandleScope scope;
 
-	if (args.Length() < 1) {
+	if ((args.Length() < 1) || (!args[0]->IsObject())) {
 		return throw_type_error("First argument must be pool handle!");
 	}
+
+	if (args[0]->ToObject()->InternalFieldCount() < 1)
+	    		return throw_type_error("Invalid handle!");
 
 	pool_t * pool = (pool_t *) args[0]->ToObject()->GetPointerFromInternalField(0);
 
 	if (pool == NULL)
-		return throw_type_error("Invalid handle!2");
+		return throw_type_error("Invalid handle!");
 
     pool_destroy(pool);
 
-    //like this?
-    return scope.Close(pool->data);
+	return scope.Close(v8::Undefined());
 }
 
 
