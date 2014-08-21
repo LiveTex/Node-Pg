@@ -9,6 +9,15 @@ var first = pg.init(5, {
   'connect_timeout': '5'
 });
 
+var second = pg.init(5, {
+  'dbname': 'relive',
+  'user': 'test',
+  'password': 'lttest',
+  'host': '192.168.48.14',
+  'port': '5432',
+  'connect_timeout': '5'
+});
+
 var count = 0;
 var step = 1;
 var query = process.argv[3]  || 'SELECT * FROM main.member LIMIT 100';
@@ -19,7 +28,7 @@ var t = Date.now();
 var mem = 0;
 
 function exec() {
-  pg.exec(first, query, complete, cancel);
+  pg.exec(first, query, complete(first.name), cancel);
 }
 
 
@@ -30,11 +39,12 @@ function cancel() {
   complete();
 }
 
-function complete() {
+function complete(name) {
   mem += process.memoryUsage().heapUsed/1024/1024;
 
   if ((r += 1) === count) {
     console.log('[LIVETEX-NODE-PG] | R:', r, ' | E:', e, ' | T:', Date.now() - t, ' | M:', (Math.round(mem/r*10)/10));
+
     run();
   }
 }

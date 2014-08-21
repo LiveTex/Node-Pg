@@ -27,6 +27,7 @@ typedef struct pool_ {
 	struct connection_ * connection_queue;
 
 	v8::Persistent<v8::Function> error_callback;
+
 } pool_t;
 
 
