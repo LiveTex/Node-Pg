@@ -8,6 +8,7 @@
 #ifndef CONNECTION_H_
 #define CONNECTION_H_
 
+#include <time.h>
 
 #include <libpq-fe.h>
 
@@ -16,19 +17,13 @@
 #include "query.h"
 #include "pool.h"
 
-
 typedef enum {
-	NEW = 0,
-	INITIALIZING,
-	ACTIVE,
-	DESTROYING
+	NEW = 0, INITIALIZING, ACTIVE, WAITFORDESTROY, DESTROYING
 } entity_status_t;
 
 typedef enum {
-	BUSY = 0,
-	FREE
+	BUSY = 0, FREE
 } activity_status_t;
-
 
 typedef struct connection_ {
 	char * connection_info;
@@ -45,20 +40,26 @@ typedef struct connection_ {
 	entity_status_t status;
 	activity_status_t activity_status;
 
+	time_t downtimeStarting;
+	bool readyForFree;
+
 	char * error;
 
 } connection_t;
 
+connection_t *
+connection_alloc(char * connection_info, struct pool_ * pool);
 
-connection_t * connection_alloc(char * connection_info, struct pool_ * pool);
+void
+connection_init(connection_t * connection);
 
-void connection_init(connection_t * connection);
+void
+connection_process(connection_t * connection);
 
-void connection_process(connection_t * connection);
+void
+connection_destroy_req(connection_t * connection);
 
-void connection_destroy(connection_t * connection);
-
-void connection_free(connection_t * connection);
-
+void
+connection_free(connection_t * connection);
 
 #endif /* CONNECTION_H_ */

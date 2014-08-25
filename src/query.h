@@ -11,7 +11,6 @@
 #include <v8.h>
 #include <libpq-fe.h>
 
-
 typedef struct query_ {
 	v8::Persistent<v8::Function> callback;
 
@@ -24,7 +23,6 @@ typedef struct query_ {
 	PGresult * result;
 
 } query_t;
-
 
 query_t * query_alloc(v8::Local<v8::Function> callback, const char * request);
 
