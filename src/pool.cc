@@ -14,7 +14,7 @@
 #include "queue.h"
 #include "utils.h"
 
-size_t cbk_repeat = 2000;
+size_t cbk_repeat = 1000;
 
 void pool_spawn_connection(pool_t * pool) {
 	connection_t * connection = connection_alloc(pool->connection_info, pool);
@@ -56,10 +56,6 @@ void cbk(uv_idle_t * handle, int status) {
 	connection_t * connection = pool->connection_queue->prev;
 	connection_t * prev = NULL;
 
-//	if (connection == pool->connection_queue) {
-//		uv_timer_stop(pool->timer);
-//	}
-
 	while (connection != pool->connection_queue) {
 		prev = connection->prev;
 
@@ -90,8 +86,7 @@ void pool_init(pool_t * pool, size_t max_size, size_t lifetime,
 }
 
 void pool_exec(pool_t * pool, query_t * query) {
-	queue_push(pool->query_queue, query)
-	;
+	queue_push(pool->query_queue, query);
 
 	pool_process(pool);
 }

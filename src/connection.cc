@@ -125,8 +125,7 @@ connection_alloc(char * connection_info, pool_t * pool) {
 
 	connection->error = NULL;
 
-	queue_push(pool->connection_queue, connection)
-	;
+	queue_push(pool->connection_queue, connection);
 
 	return connection;
 }
@@ -198,5 +197,4 @@ void connection_free(connection_t * connection) {
 
 	free(connection->connection_info);
 	free(connection);
-
 }

@@ -75,8 +75,7 @@ v8::Handle<v8::Value> pg_exec(const v8::Arguments& args) {
 	if (args[0]->ToObject()->InternalFieldCount() < 1)
 		return throw_type_error("Invalid handle!");
 
-	pool_t * pool = (pool_t *) args[0]->ToObject()->GetPointerFromInternalField(
-			0);
+	pool_t * pool = (pool_t *) args[0]->ToObject()->GetPointerFromInternalField(0);
 
 	if (pool == NULL)
 		return throw_type_error("Invalid handle!");
