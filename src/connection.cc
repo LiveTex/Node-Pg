@@ -14,269 +14,189 @@
 #include "queue.h"
 #include "utils.h"
 
-void
-connection_connect_work(uv_work_t * work)
-{
-  connection_t * connection = (connection_t *) work->data;
+void connection_connect_work(uv_work_t * work) {
+	connection_t * connection = (connection_t *) work->data;
 
-  connection->descriptor = PQconnectdb(connection->connection_info);
+	connection->descriptor = PQconnectdb(connection->connection_info);
 
-  ConnStatusType status = PQstatus(connection->descriptor);
-  if (status != CONNECTION_OK)
-    {
-      connection->error = copy_string(PQerrorMessage(connection->descriptor));
-    }
+	ConnStatusType status = PQstatus(connection->descriptor);
+	if (status != CONNECTION_OK) {
+		connection->error = copy_string(PQerrorMessage(connection->descriptor));
+	}
 }
 
-void
-connection_exec_work(uv_work_t * work)
-{
-  connection_t * connection = (connection_t *) work->data;
+void connection_exec_work(uv_work_t * work) {
+	connection_t * connection = (connection_t *) work->data;
 
-  ConnStatusType status = PQstatus(connection->descriptor);
-  if (status != CONNECTION_OK)
-    {
-      connection->error = copy_string(PQerrorMessage(connection->descriptor));
-    }
-  else
-    {
-      query_t * query = connection->current_query;
+	ConnStatusType status = PQstatus(connection->descriptor);
+	if (status != CONNECTION_OK) {
+		connection->error = copy_string(PQerrorMessage(connection->descriptor));
+	} else {
+		query_t * query = connection->current_query;
 
-      if (query != NULL)
-        {
-          PGresult * result = PQexec(connection->descriptor, query->request);
+		if (query != NULL) {
+			PGresult * result = PQexec(connection->descriptor, query->request);
 
-          switch (PQresultStatus(result))
-            {
-          case PGRES_COMMAND_OK:
-            {
-              PQclear(result);
-              break;
-            }
+			switch (PQresultStatus(result)) {
+			case PGRES_COMMAND_OK: {
+				PQclear(result);
+				break;
+			}
 
-          case PGRES_TUPLES_OK:
-            {
-              query->result = result;
-              break;
-            }
+			case PGRES_TUPLES_OK: {
+				query->result = result;
+				break;
+			}
 
-          default:
-            {
-              query->error = copy_string(PQresultErrorMessage(result));
-              PQclear(result);
-              break;
-            }
-            }
-        }
-    }
+			default: {
+				query->error = copy_string(PQresultErrorMessage(result));
+				PQclear(result);
+				break;
+			}
+			}
+		}
+	}
 }
 
-void
-connection_work_handler(uv_work_t * work)
-{
-  connection_t * connection = (connection_t *) work->data;
+void connection_work_handler(uv_work_t * work) {
+	connection_t * connection = (connection_t *) work->data;
 
-  if (connection->error != NULL)
-    {
-      pool_t * pool = connection->pool;
+	if (connection->error != NULL) {
+		pool_t * pool = connection->pool;
 
-      if (connection->current_query != NULL)
-        {
-          queue_unshift(pool->query_queue, connection->current_query)
-          ;
-          connection->current_query = NULL;
-        }
+		if (connection->current_query != NULL) {
+			queue_unshift(pool->query_queue, connection->current_query)
+			;
+			connection->current_query = NULL;
+		}
 
-      pool_handle_error(pool, connection->error);
-      pool_process(pool);
+		pool_handle_error(pool, connection->error);
+		pool_process(pool);
 
-      connection_destroy(connection);
-    }
+		connection_destroy_req(connection);
+	}
 
-  connection->activity_status = FREE;
-  connection_process(connection);
+	connection->activity_status = FREE;
+	connection_process(connection);
 
-  free(work);
+	free(work);
 }
 
-void
-connection_queue_work(connection_t * connection, uv_work_cb work)
-{
-  uv_work_t * work_item = (uv_work_t *) malloc(sizeof(uv_work_t));
-  work_item->data = connection;
+void connection_queue_work(connection_t * connection, uv_work_cb work) {
+	uv_work_t * work_item = (uv_work_t *) malloc(sizeof(uv_work_t));
+	work_item->data = connection;
 
-  connection->activity_status = BUSY;
-  connection->readyForFree = false;
+	connection->activity_status = BUSY;
+	connection->readyForFree = false;
 
-  uv_queue_work(uv_default_loop(), work_item, work,
-      (uv_after_work_cb) connection_work_handler);
+	uv_queue_work(uv_default_loop(), work_item, work,
+			(uv_after_work_cb) connection_work_handler);
 }
 
-void
-connection_fetch_query(connection_t * connection)
-{
-  if (connection->current_query == NULL && connection->status != DESTROYING)
-    {
+void connection_fetch_query(connection_t * connection) {
+	if (connection->current_query == NULL && connection->status != DESTROYING) {
 
-      queue_shift(connection->pool->query_queue, connection->current_query);
+		queue_shift(connection->pool->query_queue, connection->current_query);
 
-      if (connection->current_query != NULL)
-        {
-
-          connection_queue_work(connection, connection_exec_work);
-        }
-      else
-        {
-
-          connection_destroy(connection);
-        }
-    }
+		if (connection->current_query != NULL) {
+			connection_queue_work(connection, connection_exec_work);
+		} else {
+			connection_destroy_req(connection);
+		}
+	}
 }
 
 connection_t *
-connection_alloc(char * connection_info, pool_t * pool)
-{
-  connection_t * connection = (connection_t *) malloc(sizeof(connection_t));
-  connection->status = NEW;
-  connection->activity_status = FREE;
+connection_alloc(char * connection_info, pool_t * pool) {
+	connection_t * connection = (connection_t *) malloc(sizeof(connection_t));
+	connection->status = NEW;
+	connection->activity_status = FREE;
 
-  connection->connection_info = copy_string(connection_info);
+	connection->connection_info = copy_string(connection_info);
 
-  connection->pool = pool;
+	connection->pool = pool;
 
-  connection->current_query = NULL;
+	connection->current_query = NULL;
 
-  connection->descriptor = NULL;
+	connection->descriptor = NULL;
 
-  connection->prev = NULL;
-  connection->next = NULL;
+	connection->prev = NULL;
+	connection->next = NULL;
 
-  connection->error = NULL;
+	connection->error = NULL;
 
-  connection->timer = (uv_timer_t *) malloc(sizeof(uv_timer_t));
+	queue_push(pool->connection_queue, connection)
+	;
 
-  queue_push(pool->connection_queue, connection)
-  ;
-
-  return connection;
+	return connection;
 }
 
-void
-connection_init(connection_t * connection)
-{
-  connection->status = INITIALIZING;
-
-  uv_timer_init(uv_default_loop(), connection->timer);
-  connection->timer->data = connection;
-
-  connection_queue_work(connection, connection_connect_work);
+void connection_init(connection_t * connection) {
+	connection->status = INITIALIZING;
+	connection_queue_work(connection, connection_connect_work);
 }
 
-void
-connection_destroy(connection_t * connection)
-{
-  connection->status = WAIT;
+void connection_destroy_req(connection_t * connection) {
+	if (!connection->readyForFree) {
+		connection->readyForFree = true;
+		connection->downtimeStarting = time(NULL);
+	}
+
+	connection->status = WAITFORDESTROY;
 }
 
-void
-cbk(uv_idle_t * handle, int status)
-{
+void connection_process(connection_t * connection) {
 
-  connection_t * connection = (connection_t *) handle->data;
+	if (connection->activity_status == FREE) {
+		query_t * query = connection->current_query;
+		connection->current_query = NULL;
 
-  if (connection->activity_status == BUSY)
-    {
-      return;
-    }
+		switch (connection->status) {
+		case INITIALIZING: {
+			connection->status = ACTIVE;
+			connection_fetch_query(connection);
 
-  connection_process(connection);
+			break;
+		}
 
-  if (connection->status == WAIT)
-    {
-      if (connection->readyForFree)
-        {
-          connection->status = DESTROYING;
-          connection_process(connection);
-        }
-      else
-        {
-          connection->readyForFree = true;
-          connection_process(connection);
-        }
+		case ACTIVE:
+		case WAITFORDESTROY: {
+			connection_fetch_query(connection);
 
-    }
+			break;
+		}
+
+		case DESTROYING: {
+			connection_free(connection);
+			break;
+		}
+
+		case NEW: {
+			break;
+		}
+		}
+
+		if (query != NULL) {
+			query_apply(query);
+			query_free(query);
+		}
+	}
 }
 
-void
-connection_process(connection_t * connection)
-{
-  if (connection->activity_status == FREE)
-    {
-      query_t * query = connection->current_query;
-      connection->current_query = NULL;
+void connection_free(connection_t * connection) {
+	if (connection->prev != NULL) {
+		queue_remove(connection);
+	}
 
-      switch (connection->status)
-        {
-      case INITIALIZING:
-        {
-          uv_timer_start(connection->timer, (uv_timer_cb) cbk, 0, 100);
-          connection->status = ACTIVE;
-          connection_fetch_query(connection);
+	if (connection->descriptor != NULL) {
+		PQfinish(connection->descriptor);
+	}
 
-          break;
-        }
+	if (connection->current_query != NULL) {
+		query_free(connection->current_query);
+	}
 
-      case ACTIVE:
-      case WAIT:
-        {
-          connection_fetch_query(connection);
-
-          break;
-        }
-
-      case DESTROYING:
-        {
-          connection_free(connection);
-
-          break;
-        }
-
-      case NEW:
-        {
-          break;
-        }
-        }
-
-      if (query != NULL)
-        {
-          query_apply(query);
-          query_free(query);
-        }
-    }
-}
-
-void
-connection_free(connection_t * connection)
-{
-  if (connection->prev != NULL)
-    {
-      queue_remove(connection);
-    }
-
-  if (connection->descriptor != NULL)
-    {
-      PQfinish(connection->descriptor);
-    }
-
-  if (connection->current_query != NULL)
-    {
-      query_free(connection->current_query);
-    }
-
-  uv_timer_stop(connection->timer);
-
-  free(connection->timer);
-  free(connection->connection_info);
-  free(connection);
+	free(connection->connection_info);
+	free(connection);
 
 }

@@ -5,12 +5,10 @@
  *      Author: kononencheg
  */
 
-
 #include <jemalloc/jemalloc.h>
 
 #include "query.h"
 #include "utils.h"
-
 
 query_t * query_alloc(v8::Local<v8::Function> callback, const char * request) {
 	query_t * query = (query_t *) malloc(sizeof(query_t));
@@ -23,7 +21,6 @@ query_t * query_alloc(v8::Local<v8::Function> callback, const char * request) {
 
 	return query;
 }
-
 
 void query_apply(query_t * query) {
 	v8::HandleScope scope;
@@ -45,7 +42,6 @@ void query_apply(query_t * query) {
 
 	query->callback->Call(v8::Context::GetCurrent()->Global(), argc, argv);
 }
-
 
 void query_free(query_t * query) {
 	query->callback.Dispose();
