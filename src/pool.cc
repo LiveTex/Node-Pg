@@ -48,16 +48,13 @@ void cbk(uv_idle_t * handle, int status) {
 
 	pool_t * pool = (pool_t *) handle->data;
 
-	if (!queue_is_empty(pool->query_queue)) {
-		pool_process(pool);
-		return;
-	}
-
 	connection_t * connection = pool->connection_queue->prev;
 	connection_t * prev = NULL;
 
 	while (connection != pool->connection_queue) {
 		prev = connection->prev;
+
+		connection_process(connection);
 
 		if (connection->readyForFree) {
 			if (difftime(time(NULL), connection->downtimeStarting) > pool->lifetime) {
@@ -65,7 +62,6 @@ void cbk(uv_idle_t * handle, int status) {
 			}
 		}
 
-		connection_process(connection);
 		connection = prev;
 	}
 }
