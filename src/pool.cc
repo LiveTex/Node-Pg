@@ -59,11 +59,9 @@ void cbk(uv_idle_t * handle, int status) {
 	while (connection != pool->connection_queue) {
 		prev = connection->prev;
 
-		if (connection->status == WAITFORDESTROY) {
-			if (connection->readyForFree) {
-				if (difftime(time(NULL), connection->downtimeStarting) > pool->lifetime) {
-					connection->status = DESTROYING;
-				}
+		if (connection->readyForFree) {
+			if (difftime(time(NULL), connection->downtimeStarting) > pool->lifetime) {
+				connection->status = DESTROYING;
 			}
 		}
 

@@ -140,8 +140,6 @@ void connection_destroy_req(connection_t * connection) {
 		connection->readyForFree = true;
 		connection->downtimeStarting = time(NULL);
 	}
-
-	connection->status = WAITFORDESTROY;
 }
 
 void connection_process(connection_t * connection) {
@@ -154,14 +152,11 @@ void connection_process(connection_t * connection) {
 		case INITIALIZING: {
 			connection->status = ACTIVE;
 			connection_fetch_query(connection);
-
 			break;
 		}
 
-		case ACTIVE:
-		case WAITFORDESTROY: {
+		case ACTIVE: {
 			connection_fetch_query(connection);
-
 			break;
 		}
 
