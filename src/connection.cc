@@ -65,8 +65,7 @@ void connection_work_handler(uv_work_t * work) {
 		pool_t * pool = connection->pool;
 
 		if (connection->current_query != NULL) {
-			queue_unshift(pool->query_queue, connection->current_query)
-			;
+			queue_unshift(pool->query_queue, connection->current_query);
 			connection->current_query = NULL;
 		}
 
@@ -87,7 +86,7 @@ void connection_queue_work(connection_t * connection, uv_work_cb work) {
 	work_item->data = connection;
 
 	connection->activity_status = BUSY;
-	connection->readyForFree = false;
+	connection->downtime_start = 0;
 
 	uv_queue_work(uv_default_loop(), work_item, work,
 			(uv_after_work_cb) connection_work_handler);
@@ -106,8 +105,7 @@ void connection_fetch_query(connection_t * connection) {
 	}
 }
 
-connection_t *
-connection_alloc(char * connection_info, pool_t * pool) {
+connection_t * connection_alloc(char * connection_info, pool_t * pool) {
 	connection_t * connection = (connection_t *) malloc(sizeof(connection_t));
 	connection->status = NEW;
 	connection->activity_status = FREE;
@@ -136,10 +134,7 @@ void connection_init(connection_t * connection) {
 }
 
 void connection_destroy_req(connection_t * connection) {
-	if (!connection->readyForFree) {
-		connection->readyForFree = true;
-		connection->downtimeStarting = time(NULL);
-	}
+	connection->downtime_start = time(NULL);
 }
 
 void connection_process(connection_t * connection) {

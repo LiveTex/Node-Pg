@@ -40,8 +40,7 @@ typedef struct connection_ {
 	entity_status_t status;
 	activity_status_t activity_status;
 
-	time_t downtimeStarting;
-	bool readyForFree;
+	time_t downtime_start;
 
 	char * error;
 

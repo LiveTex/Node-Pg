@@ -1,6 +1,6 @@
 var pg = require('../bin');
 
-var first = pg.init(5, {
+var first = pg.init(5, 5, {
   'dbname': 'relive',
   'user': 'test',
   'password': 'lttest',
@@ -9,7 +9,7 @@ var first = pg.init(5, {
   'connect_timeout': '5'
 });
 
-var second = pg.init(5, {
+var second = pg.init(5, 5, {
   'dbname': 'relive',
   'user': 'test',
   'password': 'lttest',

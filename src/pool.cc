@@ -14,7 +14,7 @@
 #include "queue.h"
 #include "utils.h"
 
-size_t cbk_repeat = 1000;
+size_t pool_tick_repeat = 1000;
 
 void pool_spawn_connection(pool_t * pool) {
 	connection_t * connection = connection_alloc(pool->connection_info, pool);
@@ -44,7 +44,7 @@ pool_alloc() {
 	return pool;
 }
 
-void cbk(uv_idle_t * handle, int status) {
+void pool_tick(uv_idle_t * handle, int status) {
 
 	pool_t * pool = (pool_t *) handle->data;
 
@@ -54,12 +54,9 @@ void cbk(uv_idle_t * handle, int status) {
 	while (connection != pool->connection_queue) {
 		prev = connection->prev;
 
-		connection_process(connection);
-
-		if (connection->readyForFree) {
-			if (difftime(time(NULL), connection->downtimeStarting) > pool->lifetime) {
+		if ((time(NULL) - pool->lifetime ) < connection->downtime_start) {
 				connection->status = DESTROYING;
-			}
+				connection_free(connection);
 		}
 
 		connection = prev;
@@ -74,7 +71,7 @@ void pool_init(pool_t * pool, size_t max_size, size_t lifetime,
 
 	uv_timer_init(uv_default_loop(), pool->timer);
 	pool->timer->data = pool;
-	uv_timer_start(pool->timer, (uv_timer_cb) cbk, 0, cbk_repeat);
+	uv_timer_start(pool->timer, (uv_timer_cb) pool_tick, 0, pool_tick_repeat);
 
 	pool->error_callback = v8::Persistent<v8::Function>::New(error_callback);
 }
