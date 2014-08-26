@@ -55,7 +55,6 @@ void pool_tick(uv_idle_t * handle, int status) {
 		prev = connection->prev;
 
 		if ((time(NULL) - pool->lifetime ) < connection->downtime_start) {
-				connection->status = DESTROYING;
 				connection_free(connection);
 		}
 

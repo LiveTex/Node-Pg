@@ -18,7 +18,7 @@
 #include "pool.h"
 
 typedef enum {
-	NEW = 0, INITIALIZING, ACTIVE, DESTROYING
+	NEW = 0, INITIALIZING, ACTIVE
 } entity_status_t;
 
 typedef enum {
