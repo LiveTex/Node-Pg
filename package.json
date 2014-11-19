@@ -1,16 +1,25 @@
 {
-  "name": "node-pg", 
-  "main": "bin/index.js", 
+  "name": "node-pg",
+  "main": "bin/index.js",
   "version": "1.1.20",
-
   "scripts": {
-    "install": "node-gyp rebuild && make cpp && make js"
+    "install": "npm update && node-gyp rebuild && make cpp && make js"
   },
-
   "repository": {
-    "type": "git", 
+    "type": "git",
     "url": "https://github.com/LiveTex/Node-Pg"
   },
-
-  "gypfile": true
+  "gypfile": true,
+  "readme": "# Livetex-Node-Pg\n\nMultithreaded Postgres driver for Node-JS built with `libpq` and `libjemalloc`.\n\n####Install via npm: \n    npm install livetex-node-pg\n    \n## Examples\n\n### Simple query processing\n\n```js\nvar pg = require('livetex-node-pg');\n\npg.init(20, {\n  'user': 'postgres',\n  'dbname': 'postgres',\n  'hostaddr': '127.0.0.1',\n  'password': '123'\n});\n\npg.exec(\"SELECT 1 AS value\", function(table) {\n  console.log('Result table:', table);\n}, console.error);\n\npg.exec(\"SELECT 2 AS another_value\", function(table) {\n  console.log('Result table:', table);\n}, console.error);\n```\n\nYou don't have to wait any connection ready events before calling `exec` or\nany other method.\n\n\n### Process destroying\n\n```js\nvar pg = require('livetex-node-pg');\n\npg.init(20, {\n  'user': 'postgres',\n  'dbname': 'postgres',\n  'hostaddr': '127.0.0.1',\n  'password': '123'\n});\n\npg.exec(\"SELECT 1 AS value\", function(table) {\n  console.log('Result table:', table);\n}, console.error);\n\npg.destroy();\n```\n\nNothing happen after `destroy` call.\n\n### Prepared queries\n\n```js\nvar pg = require('livetex-node-pg');\nvar preparedQuery = \"SELECT $word1 AS word1, $word2 AS word2\";\n\npg.init(20, {\n  'user': 'postgres',\n  'dbname': 'postgres',\n  'hostaddr': '127.0.0.1',\n  'password': '123'\n});\n\npg.execPrepared(preparedQuery, {\n  'word1': 'hello',\n  'word2': 'world'\n}, function(table) {\n  console.log('Result table:', table);\n}, console.error);\n\npg.execPrepared(preparedQuery, {\n  'word1': 'bye',\n  'word2': 'bye'\n}, function(table) {\n  console.log('Result table:', table);\n}, console.error);\n```\n\nYou can pass different params to one prepared query.\n\n## API\n\n### Type definitions\n\n* **pg.Row**:`Object.<string, (number|string|boolean|null)>` - Table result row definition.\n* **pg.Table**:`Array.<!pg.Row>` - Definition of query result table.\n* **pg.ResultHandler**:`?function(pg.Table)` - Definition of function type to handle query execution result. Function argument - query result table.\n* **pg.ErrorHandler**:`?function(string, number=)` - Definition of function type to handle errors. Function arguments are error message string and optional error code. \n* **pg.PreparedValue**:`?(number|string|boolean)` - Definition of value types for insertion to prepared query. \n* **pg.PreparedParams**:`Object.<string, (!pg.PreparedValue|!Array.<!pg.PreparedValue>)>` - Definition of data object for query preparation. \n\n\n### Methods\n\n\n#### pg.escapeString:`string`\nEscapes strings in sql queries. For string escape we use <a href=\"http://goo.gl/X43TE\">dollar-quoting</a>.\n\nArguments:\n\n* string:`string` Original string.\n\nReturns escaped string.\n\n\n#### pg.escapeArray:`string`\n\nEscapes array of values. Array is casted to string of escaped elements divided by comma.\n\nArguments:\n\n* array:`!Array.<!pg.PreparedValue>` Array of values.\n\nReturns escaped strings divided by comma.\n\n\n#### pg.init: `void`\n\nInitializes connections pool.\n\nArguments: \n\n* size: `number` Pool size - Count of pool connections.\n* options: `!Object` Connection options. Options must be an object with keys specified in <a href=\"http://goo.gl/eqPw4\">documentation</a>.\n* opt_errorHandler: `!pg.ErrorHandler=` Connection error handler. `console.error` will be used by default.\n\n\n#### pg.exec: `void`\n\nExecutes SQL-query.\n\nArguments:\n\n* query: `string` SQL-query string.\n* complete: `!pg.ResultHandler` Success result handler.\n* cancel: `!pg.ErrorHandler` Execution error handler.\n\n\n#### pg.execPrepared: `void`\n\nExecutes prepared SQL-query.\n\nArguments:\n\n* query: `string` Prepared SQL-query string.\n* params: `!pg.PreparedParams` Data object for query preparation.\n* complete: `!pg.ResultHandler` Success result handler.\n* cancel: `!pg.ErrorHandler` Execution error handler.\n\n\n#### pg.prepareQuery: `string`\n\nPrepares ready-to-use SQL-query.\n\nArguments:\n\n* query: `string` Prepared SQL-query string.\n* params: `!pg.PreparedParams` Data object for query preparation.\n\nReturns ready-to-use SQL-query.\n\n\n#### pg.destroy: `void`\n\nDestroys connection pool.\n\n## License\n\nModified BSD License\n",
+  "readmeFilename": "README.md",
+  "description": "Multithreaded Postgres driver for Node-JS built with `libpq` and `libjemalloc`.",
+  "bugs": {
+    "url": "https://github.com/LiveTex/Node-Pg/issues"
+  },
+  "_id": "node-pg@1.1.20",
+  "dist": {
+    "shasum": "5954a96fb37980c746461dfcefafee04ad4be261"
+  },
+  "_from": "node-pg@1.1.20",
+  "_resolved": "http://npm.livetex.ru:5984/registry/_design/app/_rewrite/node-pg/-/node-pg-1.1.20.tgz"
 }

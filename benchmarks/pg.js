@@ -1,17 +1,16 @@
 var pg = require('../bin');
 
-pg.init(5, {
-  'dbname': 'relive',
-  'user': 'test',
-  'password': 'lttest',
-  'host': '192.168.48.14',
-  'port': '5432',
-  'connect_timeout': '5'
+pg.init(20, {
+  'user': 'postgres',
+  'dbname': 'postgres',
+  'hostaddr': process.argv[2],
+  'password': '123',
+  'port': 5432
 });
 
 var count = 0;
 var step = 1;
-var query = process.argv[3]  || 'SELECT * FROM main.member LIMIT 100';
+var query = process.argv[3]  || "SELECT 1";
 
 var r = 0;
 var e = 0;
@@ -24,8 +23,6 @@ function exec() {
 
 
 function cancel() {
-  console.log(arguments[0]);
-
   e += 1;
   complete();
 }
