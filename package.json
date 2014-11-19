@@ -1,7 +1,7 @@
 {
   "name": "node-pg",
   "main": "bin/index.js",
-  "version": "1.1.20",
+  "version": "1.1.20-log",
   "scripts": {
     "install": "npm update && node-gyp rebuild && make cpp && make js"
   },
