@@ -14,16 +14,16 @@
 #include "connection.h"
 
 
-typedef struct task_result_ task_result_t;
-typedef struct task_ task_t;
+typedef struct task_result_ db_task_result_t;
+typedef struct task_ db_task_t;
 
 
 typedef void (* task_process_handler) (void * data,
 									   struct connection_ * connection,
-									   task_result_t * result);
+									   db_task_result_t * result);
 
 
-typedef void (* task_result_handler) (task_result_t * result,
+typedef void (* task_result_handler) (db_task_result_t * result,
 									  struct connection_ * connection,
 									  int argc, v8::Handle<v8::Value> * argv);
 
@@ -32,10 +32,10 @@ struct task_ {
 	task_process_handler process;
 	task_result_handler handle_result;
 
-	task_t * next;
-	task_t * prev;
+	db_task_t * next;
+	db_task_t * prev;
 
-	task_result_t * result;
+	db_task_result_t * result;
 
 	void * data;
 };
@@ -47,10 +47,10 @@ struct task_result_ {
 };
 
 
-task_t * task_alloc(task_process_handler process,
+db_task_t * task_alloc(task_process_handler process,
 					task_result_handler handle_result);
 
-void task_free(task_t * task);
+void task_free(db_task_t * task);
 
 
 #endif /* TASK_H_ */

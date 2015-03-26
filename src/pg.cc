@@ -21,72 +21,66 @@
 pool_t * pool;
 
 
-v8::Handle<v8::Value> pg_init(const v8::Arguments &args) {
-    v8::HandleScope scope;
-
-    if (args.Length() < 1) {
-		return throw_type_error("First argument must be max pool size!");
+void pg_init(const v8::FunctionCallbackInfo<v8::Value> &args) {
+  if (args.Length() < 1) {
+		throw_type_error("First argument must be max pool size!");
+		return;
 	}
 
-    if (args.Length() < 2) {
-		return throw_type_error("Second argument must be connection string!");
+  if (args.Length() < 2) {
+		throw_type_error("Second argument must be connection string!");
+		return;
 	}
 
-    if (args.Length() < 3 && !args[2]->IsFunction()) {
-		return throw_type_error("Third argument must be error callback!");
+  if (args.Length() < 3 && !args[2]->IsFunction()) {
+		throw_type_error("Third argument must be error callback!");
+		return;
 	}
 
 	v8::String::Utf8Value str(args[1]->ToString());
 
 	pool_init(pool, args[0]->ToInteger()->Int32Value(), *str,
 			  v8::Local<v8::Function>::Cast(args[2]));
-
-    return scope.Close(v8::Undefined());
 }
 
-v8::Handle<v8::Value> pg_exec(const v8::Arguments &args) {
-    v8::HandleScope scope;
 
-    if (args.Length() < 1) {
-		return throw_type_error("First argument must be query request!");
+void pg_exec(const v8::FunctionCallbackInfo<v8::Value> &args) {
+  if (args.Length() < 1) {
+		throw_type_error("First argument must be query request!");
+		return;
 	}
 
-    if (args.Length() < 2 && !args[1]->IsFunction()) {
-		return throw_type_error("Second argument must be query callback!");
+  if (args.Length() < 2 && !args[1]->IsFunction()) {
+		throw_type_error("Second argument must be query callback!");
+		return;
 	}
 
 	v8::String::Utf8Value str(args[0]->ToString());
 
-    query_t * query = query_alloc(v8::Local<v8::Function>::Cast(args[1]), *str);
+  query_t * query = query_alloc(v8::Local<v8::Function>::Cast(args[1]), *str);
 
-    pool_exec(pool, query);
-
-    return scope.Close(v8::Undefined());
+  pool_exec(pool, query);
 }
 
 
-v8::Handle<v8::Value> pg_destroy(const v8::Arguments &args) {
-    v8::HandleScope scope;
-
+void pg_destroy(const v8::FunctionCallbackInfo<v8::Value> &args) {
     pool_destroy(pool);
-
-    return scope.Close(v8::Undefined());
 }
 
 
 void init (v8::Handle<v8::Object> target) {
 	pool = pool_alloc();
 
-	v8::HandleScope scope;
+	v8::Isolate *isolate = v8::Isolate::GetCurrent();
 
-    target->Set(v8::String::New("init"),
-    			v8::FunctionTemplate::New(pg_init)->GetFunction());
+  target->Set(v8::String::NewFromUtf8(isolate, "init"),
+        v8::FunctionTemplate::New(isolate, pg_init)->GetFunction());
 
-    target->Set(v8::String::New("exec"),
-    			v8::FunctionTemplate::New(pg_exec)->GetFunction());
+  target->Set(v8::String::NewFromUtf8(isolate, "exec"),
+        v8::FunctionTemplate::New(isolate, pg_exec)->GetFunction());
 
-    target->Set(v8::String::New("destroy"),
-    			v8::FunctionTemplate::New(pg_destroy)->GetFunction());
+  target->Set(v8::String::NewFromUtf8(isolate, "destroy"),
+        v8::FunctionTemplate::New(isolate, pg_destroy)->GetFunction());
 }
 
 

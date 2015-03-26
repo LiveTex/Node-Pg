@@ -5,7 +5,9 @@
  *      Author: kononencheg
  */
 
+#include <stdlib.h>
 #include <jemalloc/jemalloc.h>
+#include <Tcl/tcl.h>
 
 #include "pool.h"
 #include "connection.h"
@@ -40,10 +42,15 @@ pool_t * pool_alloc() {
 void pool_init(pool_t * pool, size_t max_size, const char * connection_info,
 		   v8::Local<v8::Function> error_callback) {
 
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+
 	pool->connection_info = copy_string(connection_info);
 	pool->max_size = max_size;
 
-	pool->error_callback = v8::Persistent<v8::Function>::New(error_callback);
+	v8::CopyablePersistentTraits<v8::Function>::CopyablePersistent persistent;
+	persistent.Reset(isolate, error_callback);
+
+	pool->error_callback = persistent;
 }
 
 
@@ -55,12 +62,14 @@ void pool_exec(pool_t * pool, query_t * query) {
 
 
 void pool_handle_error(pool_t * pool, char * error) {
-	v8::HandleScope scope;
+	v8::Isolate *isolate = v8::Isolate::GetCurrent();
+
 	v8::Handle<v8::Value> argv[1];
+	argv[0] = v8::String::NewFromUtf8(isolate, error);
 
-	argv[0] = v8::String::New(error);
-
-	pool->error_callback->Call(v8::Context::GetCurrent()->Global(), 1, argv);
+	v8::Local<v8::Function> cb =
+			v8::Local<v8::Function>::New(isolate, pool->error_callback);
+	cb->Call(v8::Context::New(isolate)->Global(), 1, argv);
 }
 
 
@@ -90,7 +99,7 @@ void pool_destroy(pool_t * pool) {
 	queue_flush(pool->query_queue, query, query_free);
 
 	pool->max_size = 0;
-	pool->error_callback.Dispose();
+	pool->error_callback.Reset();
 
 	free(pool->connection_info);
 	pool->connection_info = NULL;

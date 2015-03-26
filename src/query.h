@@ -13,7 +13,7 @@
 
 
 typedef struct query_ {
-	v8::Persistent<v8::Function> callback;
+	v8::CopyablePersistentTraits<v8::Function>::CopyablePersistent callback;
 
 	struct query_ * next;
 	struct query_ * prev;

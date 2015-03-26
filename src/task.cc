@@ -5,17 +5,17 @@
  *      Author: kononencheg
  */
 
-
+#include <stdlib.h>
 #include <jemalloc/jemalloc.h>
 
 
 #include "task.h"
 
 
-task_t * task_alloc(task_process_handler process,
+db_task_t * task_alloc(task_process_handler process,
 					task_result_handler handle_result) {
 
-	task_t * task = (task_t *) malloc(sizeof(task_t));
+	db_task_t * task = (db_task_t *) malloc(sizeof(db_task_t));
 
 	task->data = NULL;
 
@@ -25,7 +25,7 @@ task_t * task_alloc(task_process_handler process,
 	task->prev = NULL;
 	task->next = NULL;
 
-	task->result = (task_result_t *) malloc(sizeof(task_result_t));
+	task->result = (db_task_result_t *) malloc(sizeof(db_task_result_t));
 
 	task->result->data = NULL;
 	task->result->error = NULL;
@@ -34,7 +34,7 @@ task_t * task_alloc(task_process_handler process,
 }
 
 
-void task_free(task_t * task) {
+void task_free(db_task_t * task) {
 	free(task->result);
 	free(task);
 }
