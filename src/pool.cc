@@ -4,7 +4,7 @@
  *  Created on: Jul 2, 2012
  *      Author: kononencheg
  */
-
+#include <stdlib.h>
 #include <jemalloc/jemalloc.h>
 
 #include "pool.h"

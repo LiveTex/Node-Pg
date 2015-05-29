@@ -15,7 +15,7 @@
 
 
 typedef struct task_result_ task_result_t;
-typedef struct task_ task_t;
+typedef struct task_ task_pt;
 
 
 typedef void (* task_process_handler) (void * data,
@@ -32,8 +32,8 @@ struct task_ {
 	task_process_handler process;
 	task_result_handler handle_result;
 
-	task_t * next;
-	task_t * prev;
+	task_pt * next;
+	task_pt * prev;
 
 	task_result_t * result;
 
@@ -47,10 +47,10 @@ struct task_result_ {
 };
 
 
-task_t * task_alloc(task_process_handler process,
+task_pt * task_alloc(task_process_handler process,
 					task_result_handler handle_result);
 
-void task_free(task_t * task);
+void task_free(task_pt * task);
 
 
 #endif /* TASK_H_ */

@@ -5,6 +5,7 @@
  *      Author: kononencheg
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <jemalloc/jemalloc.h>
 

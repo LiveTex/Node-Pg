@@ -5,7 +5,7 @@
  *      Author: kononencheg
  */
 
-
+#include <stdlib.h>
 #include <jemalloc/jemalloc.h>
 
 #include "query.h"

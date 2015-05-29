@@ -1,7 +1,12 @@
 *.iml
 *.log
 .project
-.idea/
-bin/
-externs/
+/.idea
+/bin
+/externs
+/.DS_Store
+/CMakeLists.txt
+/build
+
 node_modules/
+
