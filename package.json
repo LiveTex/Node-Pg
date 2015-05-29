@@ -11,6 +11,9 @@
     "type": "git", 
     "url": "https://github.com/LiveTex/Node-Pg"
   },
+  "publishConfig": {
+    "registry": "http://sonatype-nexus.livetex.ru/nexus/content/repositories/livetex-npm-new/"
+  },
 
   "gypfile": true
 }
