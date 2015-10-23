@@ -3,7 +3,8 @@
   "main": "bin/index.js", 
   "version": "2.0.1", 
   "scripts": {
-    "install": "node-gyp rebuild && make cpp && make js"
+    "build": "node ./build",
+    "install": "node-gyp rebuild && "
   }, 
   "dependencies": {
     "livetex-tools": "2.0.3"
