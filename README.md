@@ -1,30 +1,32 @@
 # Livetex-Node-Pg
 
-Multithreaded Postgres driver for Node-JS built with `libpq` and `libjemalloc`.
+> Multithreaded Postgres driver for Node-JS built with `libpq` and `libjemalloc`.
 
-####Install via npm: 
-    npm install livetex-node-pg
+#### Install via npm: 
+```bash
+npm install livetex-node-pg
+````
     
 ## Examples
 
 ### Simple query processing
 
 ```js
-var pg = require('livetex-node-pg');
+const pg = require("livetex-node-pg");
 
 pg.init(20, {
-  'user': 'postgres',
-  'dbname': 'postgres',
-  'hostaddr': '127.0.0.1',
-  'password': 'postgres'
+  "user": "postgres",
+  "dbname": "postgres",
+  "hostaddr": "127.0.0.1",
+  "password": "postgres"
 });
 
-pg.exec("SELECT 1 AS value", function(table) {
-  console.log('Result table:', table);
+pg.exec("SELECT 1 AS value", table => {
+  console.log("Result table:", table);
 }, console.error);
 
-pg.exec("SELECT 2 AS another_value", function(table) {
-  console.log('Result table:', table);
+pg.exec("SELECT 2 AS another_value", table => {
+  console.log("Result table:", table);
 }, console.error);
 ```
 
@@ -35,17 +37,17 @@ any other method.
 ### Process destroying
 
 ```js
-var pg = require('livetex-node-pg');
+const pg = require("livetex-node-pg");
 
 pg.init(20, {
-  'user': 'postgres',
-  'dbname': 'postgres',
-  'hostaddr': '127.0.0.1',
-  'password': 'postgres'
+  "user": "postgres",
+  "dbname": "postgres",
+  "hostaddr": "127.0.0.1",
+  "password": "postgres"
 });
 
-pg.exec("SELECT 1 AS value", function(table) {
-  console.log('Result table:', table);
+pg.exec("SELECT 1 AS value", table => {
+  console.log("Result table:", table);
 }, console.error);
 
 pg.destroy();
@@ -56,28 +58,28 @@ Nothing happen after `destroy` call.
 ### Prepared queries
 
 ```js
-var pg = require('livetex-node-pg');
-var preparedQuery = "SELECT $word1 AS word1, $word2 AS word2";
+const pg = require("livetex-node-pg");
+const preparedQuery = "SELECT $word1 AS word1, $word2 AS word2";
 
 pg.init(20, {
-  'user': 'postgres',
-  'dbname': 'postgres',
-  'hostaddr': '127.0.0.1',
-  'password': 'postgres'
+  "user": "postgres",
+  "dbname": "postgres",
+  "hostaddr": "127.0.0.1",
+  "password": "postgres"
 });
 
 pg.execPrepared(preparedQuery, {
-  'word1': 'hello',
-  'word2': 'world'
-}, function(table) {
-  console.log('Result table:', table);
+  "word1": "hello",
+  "word2": "world"
+}, table => {
+  console.log("Result table:", table);
 }, console.error);
 
 pg.execPrepared(preparedQuery, {
-  'word1': 'bye',
-  'word2': 'bye'
-}, function(table) {
-  console.log('Result table:', table);
+  "word1": "bye",
+  "word2": "bye"
+}, table => {
+  console.log("Result table:", table);
 }, console.error);
 ```
 
